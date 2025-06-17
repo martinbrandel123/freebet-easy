@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import Header from './components/Header.vue'
 import HeroSection from './components/HeroSection.vue'
 import ConceptExplanation from './components/ConceptExplanation.vue'
@@ -8,22 +9,30 @@ import WhySignUp from './components/WhySignUp.vue'
 import SignUpForm from './components/SignUpForm.vue'
 import FAQ from './components/FAQ.vue'
 import Footer from './components/Footer.vue'
+
+const route = useRoute()
+const isHomePage = route.name === 'Home'
 </script>
 
 <template>
-  <div class="app">
-    <Header />
-    <main>
-      <HeroSection />
-      <ConceptExplanation />
-      <MoneyExamples />
-      <Testimonials />
-      <WhySignUp />
-      <SignUpForm />
-      <FAQ />
-    </main>
-    <Footer />
-  </div>
+  <v-app>
+    <div class="app">
+      <Header v-if="isHomePage" />
+      <main>
+        <router-view v-if="!isHomePage" />
+        <template v-else>
+          <HeroSection />
+          <ConceptExplanation />
+          <MoneyExamples />
+          <Testimonials />
+          <WhySignUp />
+          <SignUpForm />
+          <FAQ />
+        </template>
+      </main>
+      <Footer v-if="isHomePage" />
+    </div>
+  </v-app>
 </template>
 
 <style>

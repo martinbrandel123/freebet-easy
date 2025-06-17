@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const isMenuOpen = ref(false)
 
 const menuItems = [
@@ -24,6 +26,10 @@ const scrollToSection = (sectionId: string) => {
     element.scrollIntoView({ behavior: 'smooth' })
   }
   isMenuOpen.value = false
+}
+
+const handleAuth = () => {
+  router.push('/signup')
 }
 </script>
 
@@ -159,6 +165,23 @@ const scrollToSection = (sectionId: string) => {
   box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
 }
 
+.auth-button {
+  background: transparent;
+  color: #3B82F6;
+  border: 2px solid #3B82F6;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+  background: #3B82F6;
+  color: white;
+}
+
 .menu-toggle {
   display: flex;
   flex-direction: column;
@@ -220,23 +243,6 @@ const scrollToSection = (sectionId: string) => {
   
   .nav-link:last-child {
     border-bottom: none;
-  }
-
-  .auth-button {
-  background: transparent;
-  color: #3B82F6;
-  border: 2px solid #3B82F6;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
-  }
-
-  .auth-button:hover {
-    background: #3B82F6;
-    color: white;
   }
 }
 </style>
