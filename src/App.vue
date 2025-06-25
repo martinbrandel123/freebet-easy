@@ -1,28 +1,19 @@
 <script setup lang="ts">
-import Header from './components/Header.vue'
-import HeroSection from './components/HeroSection.vue'
-import ConceptExplanation from './components/ConceptExplanation.vue'
-import MoneyExamples from './components/MoneyExamples.vue'
-import Testimonials from './components/Testimonials.vue'
-import WhySignUp from './components/WhySignUp.vue'
-import SignUpForm from './components/SignUpForm.vue'
-import FAQ from './components/FAQ.vue'
-import Footer from './components/Footer.vue'
+import { onMounted } from 'vue'
+import { useAuthStore } from './stores/auth'
+import { RouterView } from 'vue-router'
+
+const authStore = useAuthStore()
+
+onMounted(() => {
+  // Initialiser le store d'authentification au démarrage
+  authStore.init()
+})
 </script>
 
 <template>
   <div class="app">
-    <Header />
-    <main>
-      <HeroSection />
-      <ConceptExplanation />
-      <MoneyExamples />
-      <Testimonials />
-      <WhySignUp />
-      <SignUpForm />
-      <FAQ />
-    </main>
-    <Footer />
+    <RouterView />
   </div>
 </template>
 

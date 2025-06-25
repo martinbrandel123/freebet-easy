@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import AuthGoogleButton from './AuthGoogleButton.vue'
 
 const formData = ref({
   firstName: '',
@@ -18,6 +19,10 @@ const errors = ref<Record<string, string>>({})
 const countries = [
   'France', 'Belgique', 'Suisse', 'Canada', 'Luxembourg', 'Monaco'
 ]
+
+// Configuration Google OAuth
+const GOOGLE_CLIENT_ID = 'VOTRE_CLIENT_ID_GOOGLE.apps.googleusercontent.com'
+const API_URL = 'https://votre-api.com/auth/google'
 
 const validateForm = () => {
   errors.value = {}
@@ -78,6 +83,15 @@ const submitForm = async () => {
     isSubmitting.value = false
   }
 }
+
+const handleGoogleSuccess = (token: string, userInfo?: any) => {
+  console.log('Inscription Google réussie:', { token, userInfo })
+  isSuccess.value = true
+}
+
+const handleGoogleError = (errorMessage: string) => {
+  console.error('Erreur Google:', errorMessage)
+}
 </script>
 
 <template>
@@ -85,7 +99,7 @@ const submitForm = async () => {
     <div class="container">
       <div class="signup-content">
         <div class="signup-header">
-          <h2 class="section-title">Commencez à gagner vos 500€ dès maintenant</h2>
+          <h2 class="section-title">Commencez à gagner vos 300€ dès maintenant</h2>
           <p class="section-subtitle">
             Inscription gratuite • Aucun engagement • Résultats garantis
           </p>
@@ -99,6 +113,10 @@ const submitForm = async () => {
                 <li>
                   <span class="benefit-icon">✅</span>
                   <span>Guide complet étape par étape</span>
+                </li>
+                <li>
+                  <span class="benefit-icon">✅</span>
+                  <span>Accès à notre communauté privée</span>
                 </li>
                 <li>
                   <span class="benefit-icon">✅</span>
@@ -118,140 +136,162 @@ const submitForm = async () => {
                 <div class="urgency-icon">⏰</div>
                 <div class="urgency-text">
                   <strong>Offre limitée</strong>
-                  <p>Seulement 5 places disponibles par semaine.</p>
+                  <p>Plus que 47 places disponibles ce mois-ci</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="signup-form-container">
-            <form @submit.prevent="submitForm" class="signup-form" v-if="!isSuccess">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="firstName">Prénom *</label>
-                  <input 
-                    type="text" 
-                    id="firstName"
-                    v-model="formData.firstName"
-                    :class="{ 'error': errors.firstName }"
-                    placeholder="Votre prénom"
-                  >
-                  <span v-if="errors.firstName" class="error-message">{{ errors.firstName }}</span>
-                </div>
-                
-                <div class="form-group">
-                  <label for="lastName">Nom *</label>
-                  <input 
-                    type="text" 
-                    id="lastName"
-                    v-model="formData.lastName"
-                    :class="{ 'error': errors.lastName }"
-                    placeholder="Votre nom"
-                  >
-                  <span v-if="errors.lastName" class="error-message">{{ errors.lastName }}</span>
-                </div>
+            <div v-if="!isSuccess" class="signup-options">
+              <!-- Option Google -->
+              <div class="google-signup-section">
+                <h3>Inscription rapide</h3>
+                <AuthGoogleButton
+                  :client-id="GOOGLE_CLIENT_ID"
+                  :api-url="API_URL"
+                  redirect-path="/dashboard"
+                  button-text="ou inscrivez-vous avec votre email"
+                  theme="filled_blue"
+                  size="large"
+                  shape="rectangular"
+                  @success="handleGoogleSuccess"
+                  @error="handleGoogleError"
+                />
               </div>
 
-              <div class="form-group">
-                <label for="email">Email *</label>
-                <input 
-                  type="email" 
-                  id="email"
-                  v-model="formData.email"
-                  :class="{ 'error': errors.email }"
-                  placeholder="votre@email.com"
+              <!-- Formulaire traditionnel -->
+              <form @submit.prevent="submitForm" class="signup-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="firstName">Prénom *</label>
+                    <input 
+                      type="text" 
+                      id="firstName"
+                      v-model="formData.firstName"
+                      :class="{ 'error': errors.firstName }"
+                      placeholder="Votre prénom"
+                    >
+                    <span v-if="errors.firstName" class="error-message">{{ errors.firstName }}</span>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="lastName">Nom *</label>
+                    <input 
+                      type="text" 
+                      id="lastName"
+                      v-model="formData.lastName"
+                      :class="{ 'error': errors.lastName }"
+                      placeholder="Votre nom"
+                    >
+                    <span v-if="errors.lastName" class="error-message">{{ errors.lastName }}</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    v-model="formData.email"
+                    :class="{ 'error': errors.email }"
+                    placeholder="votre@email.com"
+                  >
+                  <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="age">Âge *</label>
+                    <input 
+                      type="number" 
+                      id="age"
+                      v-model="formData.age"
+                      :class="{ 'error': errors.age }"
+                      placeholder="18"
+                      min="18"
+                      max="99"
+                    >
+                    <span v-if="errors.age" class="error-message">{{ errors.age }}</span>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="country">Pays</label>
+                    <select id="country" v-model="formData.country">
+                      <option v-for="country in countries" :key="country" :value="country">
+                        {{ country }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      v-model="formData.consent"
+                      :class="{ 'error': errors.consent }"
+                    >
+                    <span class="checkmark"></span>
+                    <span class="checkbox-text">
+                      J'accepte les <a href="#" class="link">conditions d'utilisation</a> et 
+                      la <a href="#" class="link">politique de confidentialité</a> *
+                    </span>
+                  </label>
+                  <span v-if="errors.consent" class="error-message">{{ errors.consent }}</span>
+                </div>
+
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" v-model="formData.newsletter">
+                    <span class="checkmark"></span>
+                    <span class="checkbox-text">
+                      Je souhaite recevoir des conseils et offres par email
+                    </span>
+                  </label>
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="submit-btn"
+                  :disabled="isSubmitting"
                 >
-                <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="age">Âge *</label>
-                  <input 
-                    type="number" 
-                    id="age"
-                    v-model="formData.age"
-                    :class="{ 'error': errors.age }"
-                    placeholder="18"
-                    min="18"
-                    max="99"
-                  >
-                  <span v-if="errors.age" class="error-message">{{ errors.age }}</span>
-                </div>
-                
-                <div class="form-group">
-                  <label for="country">Pays</label>
-                  <select id="country" v-model="formData.country">
-                    <option v-for="country in countries" :key="country" :value="country">
-                      {{ country }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-group checkbox-group">
-                <label class="checkbox-label">
-                  <input 
-                    type="checkbox" 
-                    v-model="formData.consent"
-                    :class="{ 'error': errors.consent }"
-                  >
-                  <span class="checkmark"></span>
-                  <span class="checkbox-text">
-                    J'accepte les <a href="#" class="link">conditions d'utilisation</a> et 
-                    la <a href="#" class="link">politique de confidentialité</a> *
+                  <span v-if="isSubmitting">
+                    <div class="spinner"></div>
+                    Inscription en cours...
                   </span>
-                </label>
-                <span v-if="errors.consent" class="error-message">{{ errors.consent }}</span>
-              </div>
-
-              <div class="form-group checkbox-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" v-model="formData.newsletter">
-                  <span class="checkmark"></span>
-                  <span class="checkbox-text">
-                    Je souhaite recevoir des conseils et offres par email
+                  <span v-else>
+                    🚀 Je m'inscris maintenant - C'est gratuit !
                   </span>
-                </label>
-              </div>
+                </button>
 
-              <button 
-                type="submit" 
-                class="submit-btn"
-                :disabled="isSubmitting"
-              >
-                <span v-if="isSubmitting">
-                  <div class="spinner"></div>
-                  Inscription en cours...
-                </span>
-                <span v-else>
-                  🚀 Je m'inscris maintenant - C'est gratuit !
-                </span>
-              </button>
-
-              <div class="form-footer">
-                <div class="security-badges">
-                  <div class="badge">🔒</div>
-                  <div class="badge">✅</div>
-                  <div class="badge">🛡️</div>
+                <div class="form-footer">
+                  <div class="security-badges">
+                    <div class="badge">🔒</div>
+                    <div class="badge">✅</div>
+                    <div class="badge">🛡️</div>
+                  </div>
+                  <p>Vos données sont sécurisées et ne seront jamais partagées</p>
                 </div>
-                <p>Vos données sont sécurisées et ne seront jamais partagées</p>
-              </div>
-            </form>
+              </form>
+            </div>
 
             <div v-if="isSuccess" class="success-message">
               <div class="success-icon">🎉</div>
               <h3>Félicitations !</h3>
-              <p>Votre inscription a été confirmée. Vous allez recevoir un email avec toutes les informations pour commencer à gagner vos premiers 500€.</p>
+              <p>Votre inscription a été confirmée. Vous allez recevoir un email avec toutes les informations pour commencer à gagner vos premiers 300€.</p>
               <div class="success-next-steps">
                 <h4>Prochaines étapes :</h4>
                 <ol>
                   <li>Vérifiez votre boîte email</li>
                   <li>Rejoignez notre groupe privé</li>
                   <li>Suivez le guide étape par étape</li>
-                  <li>Gagnez vos premiers 500€ !</li>
+                  <li>Gagnez vos premiers 300€ !</li>
                 </ol>
               </div>
+              <a href="/dashboard" class="dashboard-link">
+                Accéder à mon espace membre
+              </a>
             </div>
           </div>
         </div>
@@ -363,6 +403,23 @@ const submitForm = async () => {
   padding: 2.5rem;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   color: #1F2937;
+}
+
+.signup-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.google-signup-section {
+  text-align: center;
+}
+
+.google-signup-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 1.5rem;
 }
 
 .signup-form {
@@ -561,6 +618,7 @@ const submitForm = async () => {
   border-radius: 12px;
   padding: 1.5rem;
   text-align: left;
+  margin-bottom: 2rem;
 }
 
 .success-next-steps h4 {
@@ -575,6 +633,22 @@ const submitForm = async () => {
 
 .success-next-steps li {
   margin-bottom: 0.5rem;
+}
+
+.dashboard-link {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.dashboard-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 @media (max-width: 1024px) {

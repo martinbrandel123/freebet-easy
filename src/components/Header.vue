@@ -1,18 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
+const router = useRouter()
+const authStore = useAuthStore()
 const isMenuOpen = ref(false)
-
-const menuItems = [
-  { label: 'Comment ça marche ?', section: 'concept' },
-  { label: 'Avis clients', section: 'testimonials' },
-  { label: 'Inscription', section: 'signup' },
-]
-
-const ctaButton = {
-  label: 'Je découvre comment gagner 500€ facilement',
-  section: 'signup',
-}
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -25,6 +18,21 @@ const scrollToSection = (sectionId: string) => {
   }
   isMenuOpen.value = false
 }
+
+const goToSignup = () => {
+  router.push('/signup')
+  isMenuOpen.value = false
+}
+
+const goToLogin = () => {
+  router.push('/login')
+  isMenuOpen.value = false
+}
+
+const goToDashboard = () => {
+  router.push('/dashboard')
+  isMenuOpen.value = false
+}
 </script>
 
 <template>
@@ -32,29 +40,39 @@ const scrollToSection = (sectionId: string) => {
     <div class="container">
       <nav class="nav">
         <div class="logo">
-          <span class="logo-text">Freebet to Cash</span>
+          <span class="logo-text">Genius Programme</span>
           <span class="logo-badge">💰</span>
         </div>
         
         <div class="nav-menu" :class="{ 'nav-menu-open': isMenuOpen }">
-          <a
-            v-for="item in menuItems"
-            :key="item.section"
-            href="#"
-            @click.prevent="scrollToSection(item.section)"
-            class="nav-link"
-          >
-            {{ item.label }}
-          </a>
+          <a href="#" @click.prevent="scrollToSection('hero')" class="nav-link">Accueil</a>
+          <a href="#" @click.prevent="scrollToSection('concept')" class="nav-link">Comment ça marche ?</a>
+          <a href="#" @click.prevent="scrollToSection('testimonials')" class="nav-link">Avis clients</a>
+          <a href="#" @click.prevent="scrollToSection('signup')" class="nav-link">Inscription</a>
         </div>
 
-        <button class="cta-button" @click="scrollToSection(ctaButton.section)">
-          {{ ctaButton.label }}
-        </button>
-
-        <button class="auth-button" @click="handleAuth">
-          Connexion / Inscription
-        </button>
+        <div class="nav-actions">
+          <template v-if="authStore.isAuthenticated">
+            <button class="user-button" @click="goToDashboard">
+              <span v-if="authStore.userInfo?.picture">
+                <img :src="authStore.userInfo.picture" :alt="authStore.userInfo.name" class="user-avatar">
+              </span>
+              <span v-else class="user-initial">
+                {{ authStore.userInfo?.name?.charAt(0) || '👤' }}
+              </span>
+              <span class="user-name">{{ authStore.userInfo?.name || 'Mon compte' }}</span>
+            </button>
+          </template>
+          
+          <template v-else>
+            <button class="login-button" @click="goToLogin">
+              Connexion
+            </button>
+            <button class="cta-button" @click="goToSignup">
+              S'inscrire gratuitement
+            </button>
+          </template>
+        </div>
 
         <button class="menu-toggle" @click="toggleMenu">
           <span></span>
@@ -140,8 +158,31 @@ const scrollToSection = (sectionId: string) => {
   transform: scaleX(1);
 }
 
+.nav-actions {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login-button {
+  background: none;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background: #F9FAFB;
+  color: #3B82F6;
+  border-color: #3B82F6;
+}
+
 .cta-button {
-  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
   color: white;
   padding: 0.75rem 1.5rem;
   border: none;
@@ -150,13 +191,53 @@ const scrollToSection = (sectionId: string) => {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  display: none;
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.user-button {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #1F2937;
+}
+
+.user-button:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-initial {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.user-name {
+  font-size: 0.9rem;
 }
 
 .menu-toggle {
@@ -181,8 +262,8 @@ const scrollToSection = (sectionId: string) => {
     display: flex;
   }
   
-  .cta-button {
-    display: block;
+  .nav-actions {
+    display: flex;
   }
   
   .menu-toggle {
@@ -221,22 +302,21 @@ const scrollToSection = (sectionId: string) => {
   .nav-link:last-child {
     border-bottom: none;
   }
-
-  .auth-button {
-  background: transparent;
-  color: #3B82F6;
-  border: 2px solid #3B82F6;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
+  
+  .nav-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
   }
-
-  .auth-button:hover {
-    background: #3B82F6;
-    color: white;
+  
+  .login-button,
+  .cta-button,
+  .user-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>
