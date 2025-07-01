@@ -44,11 +44,20 @@ const errors = reactive({
 
 // Liste des bookmakers
 const bookmakers = [
-  { id: 'winamax', name: 'Winamax', logo: '🎯' },
-  { id: 'betclic', name: 'Betclic', logo: '⚡' },
-  { id: 'unibet', name: 'Unibet', logo: '🔥' },
-  { id: 'olybet', name: 'OlyBet', logo: '🎲' },
-  { id: 'zebet', name: 'ZEbet', logo: '⭐' }
+{ id: 'zebet', name: 'Zebet', logo: '🎯' },      // focalisé sur la cible, précision
+{ id: 'vibrez', name: 'Vibrez', logo: '🧩' },    // vibration, énergie
+{ id: 'bwin', name: 'Bwin', logo: '💥' },        // impact, explosion d’énergie
+{ id: 'betclic', name: 'Betclic', logo: '🔥' },  // intensité et passion (déjà utilisé)
+{ id: 'betsson', name: 'Betsson', logo: '🎰' },  // machine à sous, casino :contentReference[oaicite:1]{index=1}
+{ id: 'unibet', name: 'Unibet', logo: '🧩' },    // vibration, énergie
+{ id: 'parionssport', name: 'Parions sport', logo: '🏆' }, // victoire, compétition
+{ id: 'feelingbet', name: 'Feelingbet', logo: '😊' },     // ressenti et émotion
+{ id: 'olybet', name: 'Olybet', logo: '🥇' },              // médaille d’or, olympisme
+{ id: 'genybet', name: 'Genybet', logo: '⚡' },            // rapidité, énergie (déjà utilisé)
+{ id: 'netbet', name: 'Netbet', logo: '🎲' },              // dé, chance, jeux :contentReference[oaicite:2]{index=2}
+{ id: 'pmu', name: 'Pmu', logo: '🐎' },                   // pari hippique
+{ id: 'vbet', name: 'Vbet', logo: '🚀' },                 // envol, montée en flèche
+{ id: 'winamax', name: 'Winamax', logo: '🏅' }   
 ]
 
 // Validation en temps réel
@@ -87,10 +96,6 @@ const validateField = (field: string) => {
         errors.age = ''
       }
       break
-    case 'selectedBookmakers':
-      errors.selectedBookmakers = formData.bookmakers.length === 0 
-        ? 'Sélectionnez au moins un bookmaker' : ''
-      break
     case 'acceptTerms':
       errors.acceptTerms = !formData.acceptTerms 
         ? 'Vous devez accepter les conditions' : ''
@@ -101,9 +106,9 @@ const validateField = (field: string) => {
 // Validation complète
 const isFormValid = computed(() => {
   return !errors.email && !errors.password && !errors.firstName && !errors.lastName && 
-         !errors.age && !errors.selectedBookmakers && !errors.acceptTerms &&
+         !errors.age && !errors.acceptTerms &&
          formData.email && formData.password &&  formData.firstName && formData.lastName && 
-         formData.age && formData.bookmakers.length > 0 && formData.acceptTerms
+         formData.age && formData.acceptTerms
 })
 
 const isStep1Valid = computed(() => {
@@ -338,9 +343,8 @@ const goToDashboard = () => {
 
               <button type="submit" class="continue-button" :disabled="!isStep1Valid">
                 Continuer
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <v-icon icon="mdi-arrow-right" size="small"></v-icon>
+
               </button>
             </form>
           </div>
@@ -349,46 +353,48 @@ const goToDashboard = () => {
         <!-- Étape 2: Préférences -->
         <div v-if="currentStep === 2" class="signup-step">
           <div class="step-header">
-            <h1>Personnalisez votre expérience</h1>
-            <p>Quelques informations pour optimiser vos gains</p>
+            <h1>Information supplementaire</h1>
           </div>
 
           <form @submit.prevent="submitForm" class="preferences-form">
             <!-- Pays de résidence -->
-            <div class="form-section">
-              <h3>Pays de résidence</h3>
-              <div class="toggle-group">
-                <label class="toggle-option" :class="{ active: formData.isFromFrance }">
-                  <input 
-                    type="radio" 
-                    :value="true" 
-                    v-model="formData.isFromFrance"
-                    name="country"
-                  >
-                  <span class="toggle-content">
-                    <span class="flag">🇫🇷</span>
-                    <span>France</span>
-                  </span>
-                </label>
-                <label class="toggle-option" :class="{ active: !formData.isFromFrance }">
-                  <input 
-                    type="radio" 
-                    :value="false" 
-                    v-model="formData.isFromFrance"
-                    name="country"
-                  >
-                  <span class="toggle-content">
-                    <span class="flag">🌍</span>
-                    <span>Autre pays</span>
-                  </span>
-                </label>
-              </div>
+          <div class="form-section">
+            <h3>Pays de résidence actuelle</h3>
+            <p class="field-description">Veuillez indiquer où vous vivez actuellement (ceci n'est pas lié à votre nationalité)</p>
+            
+            <div class="toggle-group">
+              <label class="toggle-option" :class="{ active: formData.isFromFrance }">
+                <input 
+                  type="radio" 
+                  :value="true" 
+                  v-model="formData.isFromFrance"
+                  name="residence-country"
+                >
+                <span class="toggle-content">
+                  <span class="flag">🥖</span>
+                  <span>France</span>
+                </span>
+              </label>
+              
+              <label class="toggle-option" :class="{ active: !formData.isFromFrance }">
+                <input 
+                  type="radio" 
+                  :value="false" 
+                  v-model="formData.isFromFrance"
+                  name="residence-country"
+                >
+                <span class="toggle-content">
+                  <span class="flag">🌍</span>
+                  <span>Hors de France</span>
+                </span>
+              </label>
             </div>
+          </div>
 
             <!-- Bookmakers -->
             <div class="form-section">
-              <h3>Sites de paris que vous connaissez</h3>
-              <p class="section-description">Sélectionnez les sites sur lesquels vous avez déjà un compte ou que vous connaissez</p>
+              <h3>⚠️ Sites de paris ⚠️</h3>
+              <p class="section-description">Attention : sélectionnez impérativement les sites de paris  sur lesquels vous avez déjà été inscrit, même si votre compte n'est plus actif ou supprimé.</p>
               
               <div class="bookmakers-grid">
                 <label 
@@ -401,7 +407,6 @@ const goToDashboard = () => {
                     type="checkbox" 
                     :value="bookmaker.id"
                     v-model="formData.bookmakers"
-                    @change="validateField('selectedBookmakers')"
                   >
                   <span class="bookmaker-content">
                     <span class="bookmaker-logo">{{ bookmaker.logo }}</span>
@@ -465,13 +470,10 @@ const goToDashboard = () => {
               >
                 <span v-if="isLoading">
                   <div class="spinner"></div>
-                  Création du compte...
                 </span>
                 <span v-else>
                   Créer mon compte
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                  <v-icon icon="mdi-arrow-right" size="small"></v-icon>
                 </span>
               </button>
             </div>

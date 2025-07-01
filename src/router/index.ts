@@ -4,6 +4,12 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ForgotPassword from '../views/auth/ForgotPassword.vue'
+import VerifyEmailView from '../views/auth/VerifyEmailView.vue'
+import UpdatePasswordView from '../views/auth/UpdatePasswordView.vue'
+import AccountVerificationView from '../views/auth/AccountVerificationView.vue'
+import SendEmailVerification from '../views/auth/SendEmailVerification.vue'
+import SendPasswordVerification from '../views/auth/SendPasswordVerification.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -20,6 +26,30 @@ const router = createRouter({
       meta: { requiresGuest: true }
     },
     {
+      path: '/forgot-password',
+      name: 'forgotpassword',
+      component: SendPasswordVerification,
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/send-email-verification',
+      name: 'sendemailverification',
+      component: SendEmailVerification,
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/update-password',
+      name: 'updatepassword',
+      component: UpdatePasswordView,
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/verify-email',
+      name: 'verifyemail',
+      component: AccountVerificationView,
+      meta: { requiresGuest: true }
+    },
+    {
       path: '/signup',
       name: 'signup',
       component: SignupView,
@@ -29,42 +59,16 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     }
   ]
 })
 
-// Navigation guards
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  
-  // Initialiser le store si ce n'est pas déjà fait
-  if (!authStore.token) {
-    authStore.init()
+router.beforeEach((to, _from) => {
+  const auth = useAuthStore();
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { path: '/login', query: { redirect: to.fullPath } };
   }
-
-  // Vérifier si la route nécessite une authentification
-  if (to.meta.requiresAuth) {
-    if (!authStore.isAuthenticated) {
-      next('/login')
-      return
-    }
-    
-    // Optionnel: vérifier la validité du token
-    const isValid = await authStore.checkTokenValidity()
-    if (!isValid) {
-      next('/login')
-      return
-    }
-  }
-
-  // Vérifier si la route est réservée aux invités (non connectés)
-  if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/dashboard')
-    return
-  }
-
-  next()
-})
+});
 
 export default router

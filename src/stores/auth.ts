@@ -1,109 +1,51 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from 'pinia';
+import { jwtDecode } from 'jwt-decode';
+import api from '../services/axios';
+import { AuthService } from '../services/authService';
 
-export interface User {
-  id: string
-  email: string
-  name: string
-  picture?: string
-  given_name?: string
-  family_name?: string
-}
+interface Payload { exp: number; sub: string }
 
-export const useAuthStore = defineStore('auth', () => {
-  // State
-  const token = ref<string | null>(localStorage.getItem('jwt'))
-  const user = ref<User | null>(null)
-  const isLoading = ref(false)
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    user:   null as any,
+    token:  localStorage.getItem('access_token') as string | null,
+  }),
 
-  // Getters
-  const isAuthenticated = computed(() => !!token.value)
-  const userInfo = computed(() => user.value)
+  getters: {
+    isAuthenticated: state => !!state.token,
+  },
 
-  // Actions
-  const setAuth = async (authToken: string, userData?: User) => {
-    token.value = authToken
-    user.value = userData || null
-    
-    // Stocker dans localStorage
-    localStorage.setItem('jwt', authToken)
-    
-    if (userData) {
-      localStorage.setItem('user', JSON.stringify(userData))
-    }
-  }
+  actions: {
+    setToken(token: string) {
+      this.token = token;
+      localStorage.setItem('access_token', token);
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+      // ↓ optionnel : décoder quelques claims
+      const payload = jwtDecode<Payload>(token);
+      this.user = { id: payload.sub };
+    },
 
-  const logout = () => {
-    token.value = null
-    user.value = null
-    
-    // Nettoyer localStorage
-    localStorage.removeItem('jwt')
-    localStorage.removeItem('user')
-  }
+    async login(formData: any) {
+      const response = await AuthService.login(formData);
+      this.setToken(response.data);
+    },
 
-  const loadUserFromStorage = () => {
-    const storedToken = localStorage.getItem('jwt')
-    const storedUser = localStorage.getItem('user')
-    
-    if (storedToken) {
-      token.value = storedToken
-    }
-    
-    if (storedUser) {
-      try {
-        user.value = JSON.parse(storedUser)
-      } catch (error) {
-        console.error('Erreur lors du parsing des données utilisateur:', error)
-        localStorage.removeItem('user')
+    logout() {
+      this.user  = null;
+      this.token = null;
+      localStorage.removeItem('access_token');
+      delete api.defaults.headers.Authorization;
+    },
+
+    /** Vérifie au démarrage que le token n’est pas expiré */
+    hydrate() {
+      if (!this.token) return;
+      const { exp } = jwtDecode<Payload>(this.token);
+      if (Date.now() >= exp * 1000) {
+        this.logout();
+      } else {
+        api.defaults.headers.Authorization = `Bearer ${this.token}`;
       }
     }
   }
-
-  const checkTokenValidity = async () => {
-    if (!token.value) return false
-
-    try {
-      // Ici vous pouvez faire un appel à votre API pour vérifier la validité du token
-      const response = await fetch('/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token.value}`
-        }
-      })
-
-      if (!response.ok) {
-        logout()
-        return false
-      }
-
-      return true
-    } catch (error) {
-      console.error('Erreur lors de la vérification du token:', error)
-      logout()
-      return false
-    }
-  }
-
-  // Initialiser le store
-  const init = () => {
-    loadUserFromStorage()
-  }
-
-  return {
-    // State
-    token,
-    user,
-    isLoading,
-    
-    // Getters
-    isAuthenticated,
-    userInfo,
-    
-    // Actions
-    setAuth,
-    logout,
-    loadUserFromStorage,
-    checkTokenValidity,
-    init
-  }
-})
+});

@@ -6,7 +6,11 @@ import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css' // Import des icônes
 import 'vuetify/styles' // Import des styles de base Vuetify
 import router from './router'
-import './style.css'
+import './assets/styles/style.css'
+import './assets/styles/auth.css'
+import './assets/styles/variables.css'
+import { useAuthStore } from './stores/auth';
+
 import App from './App.vue'
 
 // Initialisation Vuetify
@@ -26,5 +30,8 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(vuetify) // <-- Ajoutez cette ligne
+
+const auth = useAuthStore();
+auth.hydrate();
 
 app.mount('#app')

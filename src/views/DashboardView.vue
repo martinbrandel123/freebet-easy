@@ -25,11 +25,10 @@ onMounted(() => {
       <div class="container">
         <div class="header-content">
           <div class="logo">
-            <span class="logo-text">Genius Programme</span>
-            <span class="logo-badge">💰</span>
+            <span class="logo-text">Freebet to Cash</span>
           </div>
           
-          <div class="user-menu">
+          <!-- <div class="user-menu">
             <div v-if="authStore.userInfo" class="user-info">
               <img 
                 v-if="authStore.userInfo.picture" 
@@ -45,7 +44,7 @@ onMounted(() => {
             <button @click="handleLogout" class="logout-button">
               Déconnexion
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
     </header>
@@ -67,9 +66,9 @@ onMounted(() => {
 
           <div class="dashboard-card">
             <div class="card-icon">💬</div>
-            <h3>Communauté privée</h3>
-            <p>Rejoignez notre groupe Telegram pour échanger avec les autres membres</p>
-            <button class="card-button">Rejoindre le groupe</button>
+            <h3>Commencer le programme</h3>
+            <p>Gagner en moyenne 500€ étapes par étapes</p>
+            <button class="card-button">C'est parti !</button>
           </div>
 
           <div class="dashboard-card">
@@ -106,10 +105,10 @@ onMounted(() => {
           <div class="progress-card">
             <div class="progress-header">
               <h3>Parcours vers les 300€</h3>
-              <span class="progress-percentage">0%</span>
+              <span class="progress-percentage">62%</span>
             </div>
             <div class="progress-bar">
-              <div class="progress-fill" style="width: 0%"></div>
+              <div class="progress-fill" style="width: 62%"></div>
             </div>
             <div class="progress-steps">
               <div class="step">

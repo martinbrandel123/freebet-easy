@@ -136,164 +136,23 @@ const handleGoogleError = (errorMessage: string) => {
                 <div class="urgency-icon">⏰</div>
                 <div class="urgency-text">
                   <strong>Offre limitée</strong>
-                  <p>Plus que 47 places disponibles ce mois-ci</p>
+                  <p>Plus que 7 places disponibles ce mois-ci</p>
                 </div>
               </div>
+
+              <br>
+              <button 
+                type="submit" 
+                class="submit-btn"
+              >
+                <span>
+                  🚀 Je m'inscris maintenant - C'est gratuit !
+                </span>
+              </button>
+
             </div>
           </div>
-
-          <div class="signup-form-container">
-            <div v-if="!isSuccess" class="signup-options">
-              <!-- Option Google -->
-              <div class="google-signup-section">
-                <h3>Inscription rapide</h3>
-                <AuthGoogleButton
-                  :client-id="GOOGLE_CLIENT_ID"
-                  :api-url="API_URL"
-                  redirect-path="/dashboard"
-                  button-text="ou inscrivez-vous avec votre email"
-                  theme="filled_blue"
-                  size="large"
-                  shape="rectangular"
-                  @success="handleGoogleSuccess"
-                  @error="handleGoogleError"
-                />
-              </div>
-
-              <!-- Formulaire traditionnel -->
-              <form @submit.prevent="submitForm" class="signup-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="firstName">Prénom *</label>
-                    <input 
-                      type="text" 
-                      id="firstName"
-                      v-model="formData.firstName"
-                      :class="{ 'error': errors.firstName }"
-                      placeholder="Votre prénom"
-                    >
-                    <span v-if="errors.firstName" class="error-message">{{ errors.firstName }}</span>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="lastName">Nom *</label>
-                    <input 
-                      type="text" 
-                      id="lastName"
-                      v-model="formData.lastName"
-                      :class="{ 'error': errors.lastName }"
-                      placeholder="Votre nom"
-                    >
-                    <span v-if="errors.lastName" class="error-message">{{ errors.lastName }}</span>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="email">Email *</label>
-                  <input 
-                    type="email" 
-                    id="email"
-                    v-model="formData.email"
-                    :class="{ 'error': errors.email }"
-                    placeholder="votre@email.com"
-                  >
-                  <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="age">Âge *</label>
-                    <input 
-                      type="number" 
-                      id="age"
-                      v-model="formData.age"
-                      :class="{ 'error': errors.age }"
-                      placeholder="18"
-                      min="18"
-                      max="99"
-                    >
-                    <span v-if="errors.age" class="error-message">{{ errors.age }}</span>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="country">Pays</label>
-                    <select id="country" v-model="formData.country">
-                      <option v-for="country in countries" :key="country" :value="country">
-                        {{ country }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-group checkbox-group">
-                  <label class="checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      v-model="formData.consent"
-                      :class="{ 'error': errors.consent }"
-                    >
-                    <span class="checkmark"></span>
-                    <span class="checkbox-text">
-                      J'accepte les <a href="#" class="link">conditions d'utilisation</a> et 
-                      la <a href="#" class="link">politique de confidentialité</a> *
-                    </span>
-                  </label>
-                  <span v-if="errors.consent" class="error-message">{{ errors.consent }}</span>
-                </div>
-
-                <div class="form-group checkbox-group">
-                  <label class="checkbox-label">
-                    <input type="checkbox" v-model="formData.newsletter">
-                    <span class="checkmark"></span>
-                    <span class="checkbox-text">
-                      Je souhaite recevoir des conseils et offres par email
-                    </span>
-                  </label>
-                </div>
-
-                <button 
-                  type="submit" 
-                  class="submit-btn"
-                  :disabled="isSubmitting"
-                >
-                  <span v-if="isSubmitting">
-                    <div class="spinner"></div>
-                    Inscription en cours...
-                  </span>
-                  <span v-else>
-                    🚀 Je m'inscris maintenant - C'est gratuit !
-                  </span>
-                </button>
-
-                <div class="form-footer">
-                  <div class="security-badges">
-                    <div class="badge">🔒</div>
-                    <div class="badge">✅</div>
-                    <div class="badge">🛡️</div>
-                  </div>
-                  <p>Vos données sont sécurisées et ne seront jamais partagées</p>
-                </div>
-              </form>
-            </div>
-
-            <div v-if="isSuccess" class="success-message">
-              <div class="success-icon">🎉</div>
-              <h3>Félicitations !</h3>
-              <p>Votre inscription a été confirmée. Vous allez recevoir un email avec toutes les informations pour commencer à gagner vos premiers 300€.</p>
-              <div class="success-next-steps">
-                <h4>Prochaines étapes :</h4>
-                <ol>
-                  <li>Vérifiez votre boîte email</li>
-                  <li>Rejoignez notre groupe privé</li>
-                  <li>Suivez le guide étape par étape</li>
-                  <li>Gagnez vos premiers 300€ !</li>
-                </ol>
-              </div>
-              <a href="/dashboard" class="dashboard-link">
-                Accéder à mon espace membre
-              </a>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>
