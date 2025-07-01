@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ProgramView from '../views/program/ProgramView.vue'
 import ForgotPassword from '../views/auth/ForgotPassword.vue'
 import VerifyEmailView from '../views/auth/VerifyEmailView.vue'
 import UpdatePasswordView from '../views/auth/UpdatePasswordView.vue'
@@ -59,6 +60,12 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/programme',
+      name: 'program',
+      component: ProgramView,
       meta: { requiresAuth: false }
     }
   ]
