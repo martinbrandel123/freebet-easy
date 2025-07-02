@@ -10,6 +10,9 @@ const programStore = useProgramStore()
 const showHistoryDrawer = ref(false)
 const showDebugPanel = ref(false)
 
+// Move import.meta.env.DEV check to script section
+const isDevMode = import.meta.env.DEV
+
 onMounted(() => {
   // Initialiser le programme au chargement
   programStore.initializeProgram()
@@ -77,7 +80,7 @@ const skipCurrentStep = () => {
 
                 <!-- Debug Panel Toggle (Development) -->
                 <button 
-                  v-if="import.meta.env.DEV"
+                  v-if="isDevMode"
                   @click="showDebugPanel = !showDebugPanel"
                   class="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg hover:bg-yellow-200 transition-colors"
                 >
@@ -101,7 +104,7 @@ const skipCurrentStep = () => {
 
               <!-- Debug Panel (Development only) -->
               <div 
-                v-if="import.meta.env.DEV && showDebugPanel" 
+                v-if="isDevMode && showDebugPanel" 
                 class="debug-panel bg-yellow-50 border border-yellow-200 rounded-lg p-4"
               >
                 <h3 class="font-semibold text-yellow-800 mb-3">🐛 Panel de Debug</h3>
