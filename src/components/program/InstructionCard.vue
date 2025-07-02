@@ -71,55 +71,56 @@ const getStepTypeLabel = (type: string) => {
 </script>
 
 <template>
-  <div v-if="currentStep" class="instruction-card bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+  <div v-if="currentStep" class="instruction-card">
     <!-- En-tête de la carte -->
-    <div class="card-header bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-200">
-      <div class="flex items-start gap-4">
+    <div class="card-header">
+      <div class="header-content">
         <!-- Icône et logos des bookmakers -->
-        <div class="flex flex-col items-center gap-2">
-          <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm">
-            {{ getStepIcon(currentStep.type) }}
+        <div class="header-icons">
+          <div class="step-icon-wrapper">
+            <span class="step-icon">{{ getStepIcon(currentStep.type) }}</span>
           </div>
           
           <!-- Logos des bookmakers si plusieurs -->
-          <div v-if="currentStep.bookmaker.includes(',')" class="flex -space-x-1">
+          <div v-if="currentStep.bookmaker.includes(',')" class="bookmaker-logos">
             <BookmakerLogo 
               v-for="bookmaker in currentStep.bookmaker.split(', ')" 
               :key="bookmaker"
               :bookmaker="bookmaker.trim()" 
               size="sm"
-              class="border-2 border-white"
+              class="bookmaker-logo"
             />
           </div>
           <BookmakerLogo 
             v-else
             :bookmaker="currentStep.bookmaker" 
             size="sm"
+            class="single-bookmaker-logo"
           />
         </div>
 
         <!-- Titre et informations -->
-        <div class="flex-1">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+        <div class="header-info">
+          <div class="header-badges">
+            <span class="type-badge">
               {{ getStepTypeLabel(currentStep.type) }}
             </span>
-            <span class="text-sm text-gray-500">
+            <span class="step-badge">
               Étape {{ currentStep.order }} / {{ programStore.totalSteps }}
             </span>
           </div>
           
-          <h2 class="text-xl lg:text-2xl font-bold text-gray-900 mb-2">
+          <h2 class="card-title">
             {{ currentStep.title }}
           </h2>
           
-          <p class="text-gray-600">
+          <p class="card-bookmaker">
             {{ currentStep.bookmaker }}
           </p>
 
           <!-- Informations sur les gains attendus -->
-          <div v-if="currentStep.payload?.expectedGain" class="mt-3 inline-flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            <span>💰</span>
+          <div v-if="currentStep.payload?.expectedGain" class="gain-badge">
+            <span class="gain-icon">💰</span>
             <span>Gain attendu : +{{ currentStep.payload.expectedGain }}€</span>
           </div>
         </div>
@@ -127,20 +128,20 @@ const getStepTypeLabel = (type: string) => {
     </div>
 
     <!-- Contenu des instructions -->
-    <div class="card-content p-6">
-      <div class="prose prose-sm max-w-none">
+    <div class="card-content">
+      <div class="instructions-content">
         <div v-html="currentStep.instructions"></div>
       </div>
 
       <!-- Informations supplémentaires selon le type d'étape -->
-      <div v-if="currentStep.payload" class="mt-6 space-y-4">
+      <div v-if="currentStep.payload" class="additional-info">
         <!-- Montant de dépôt -->
-        <div v-if="currentStep.payload.depositAmount" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-yellow-600">💳</span>
-            <h4 class="font-semibold text-yellow-800">Montant à déposer</h4>
+        <div v-if="currentStep.payload.depositAmount" class="info-card deposit-info">
+          <div class="info-header">
+            <span class="info-icon">💳</span>
+            <h4 class="info-title">Montant à déposer</h4>
           </div>
-          <p class="text-yellow-700">
+          <p class="info-content">
             {{ currentStep.payload.depositAmount }}€ par site
             <span v-if="currentStep.bookmaker.includes(',')">
               ({{ currentStep.payload.depositAmount * currentStep.bookmaker.split(',').length }}€ au total)
@@ -149,21 +150,21 @@ const getStepTypeLabel = (type: string) => {
         </div>
 
         <!-- Codes promo -->
-        <div v-if="currentStep.type === 'signup'" class="space-y-2">
-          <h4 class="font-semibold text-gray-900">Codes promo à utiliser :</h4>
-          <div class="grid gap-2">
+        <div v-if="currentStep.type === 'signup'" class="promo-codes">
+          <h4 class="promo-title">Codes promo à utiliser :</h4>
+          <div class="promo-grid">
             <div 
               v-for="bookmaker in currentStep.bookmaker.split(', ')" 
               :key="bookmaker"
-              class="flex items-center justify-between bg-gray-50 rounded-lg p-3"
+              class="promo-item"
             >
-              <span class="font-medium">{{ bookmaker.trim() }}</span>
+              <span class="promo-bookmaker">{{ bookmaker.trim() }}</span>
               <button 
                 @click="copyToClipboard('BONUS100')"
-                class="flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors"
+                class="promo-button"
               >
                 <span>BONUS100</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                 </svg>
               </button>
@@ -174,15 +175,15 @@ const getStepTypeLabel = (type: string) => {
     </div>
 
     <!-- Actions -->
-    <div class="card-actions bg-gray-50 p-6 border-t border-gray-200">
-      <div class="flex flex-col sm:flex-row gap-3">
+    <div class="card-actions">
+      <div class="action-buttons">
         <!-- Bouton principal -->
         <button 
           @click="handleMarkAsDone"
           :disabled="!canMarkAsDone"
-          class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          class="btn-primary action-primary"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="action-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
           <span>Marquer comme fait</span>
@@ -192,7 +193,7 @@ const getStepTypeLabel = (type: string) => {
         <button 
           v-if="canSkip"
           @click="showSkipConfirmation = true"
-          class="sm:w-auto bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+          class="btn-secondary action-secondary"
         >
           Passer cette étape
         </button>
@@ -200,10 +201,10 @@ const getStepTypeLabel = (type: string) => {
         <!-- Paramètres avancés -->
         <button 
           @click="programStore.showAdvancedSettings = !programStore.showAdvancedSettings"
-          class="sm:w-auto bg-gray-100 text-gray-600 p-3 rounded-lg hover:bg-gray-200 transition-colors"
+          class="btn-settings"
           title="Paramètres avancés"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="settings-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
@@ -211,37 +212,37 @@ const getStepTypeLabel = (type: string) => {
       </div>
 
       <!-- Aide contextuelle -->
-      <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <div class="flex items-start gap-2">
-          <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="help-card">
+        <div class="help-content">
+          <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <div class="text-sm text-blue-800">
-            <p class="font-medium mb-1">Besoin d'aide ?</p>
-            <p>Notre support est disponible 7j/7 pour vous accompagner. N'hésitez pas à nous contacter si vous avez des questions.</p>
+          <div class="help-text">
+            <p class="help-title">Besoin d'aide ?</p>
+            <p class="help-description">Notre support est disponible 7j/7 pour vous accompagner. N'hésitez pas à nous contacter si vous avez des questions.</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal de confirmation pour skip -->
-    <div v-if="showSkipConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Passer cette étape ?</h3>
-        <p class="text-gray-600 mb-6">
+    <div v-if="showSkipConfirmation" class="modal-overlay">
+      <div class="modal-content">
+        <h3 class="modal-title">Passer cette étape ?</h3>
+        <p class="modal-description">
           Ceci risque d'altérer le calcul du bénéfice et pourrait affecter les étapes suivantes. 
           Êtes-vous sûr de vouloir continuer ?
         </p>
-        <div class="flex gap-3">
+        <div class="modal-actions">
           <button 
             @click="showSkipConfirmation = false"
-            class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+            class="modal-btn modal-btn-cancel"
           >
             Annuler
           </button>
           <button 
             @click="handleSkip"
-            class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
+            class="modal-btn modal-btn-confirm"
           >
             Passer l'étape
           </button>
@@ -251,17 +252,22 @@ const getStepTypeLabel = (type: string) => {
   </div>
 
   <!-- État de chargement si pas d'étape courante -->
-  <div v-else class="instruction-card bg-white rounded-xl shadow-lg border border-gray-200 p-8 text-center">
-    <div class="animate-pulse">
-      <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-      <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-      <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+  <div v-else class="loading-card">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h3 class="loading-title">Chargement...</h3>
+      <p class="loading-description">Préparation de votre prochaine étape</p>
     </div>
   </div>
 </template>
 
 <style scoped>
 .instruction-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -276,35 +282,525 @@ const getStepTypeLabel = (type: string) => {
   }
 }
 
-.prose {
-  @apply text-gray-700;
+.card-header {
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+  padding: 2rem;
+  border-bottom: 1px solid #E5E7EB;
 }
 
-.prose h4 {
-  @apply text-lg font-semibold text-gray-900 mb-2;
+.header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
 
-.prose p {
-  @apply mb-3;
+.header-icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-.prose code {
-  @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+.step-icon-wrapper {
+  width: 4rem;
+  height: 4rem;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #E5E7EB;
 }
 
-.prose a {
-  @apply text-blue-600 hover:text-blue-800 underline;
+.step-icon {
+  font-size: 2rem;
 }
 
-.prose .space-y-4 > * + * {
-  @apply mt-4;
+.bookmaker-logos {
+  display: flex;
+  gap: -0.5rem;
 }
 
-.prose .grid {
-  @apply grid;
+.bookmaker-logo {
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.prose .gap-3 {
-  @apply gap-3;
+.single-bookmaker-logo {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-info {
+  flex: 1;
+}
+
+.header-badges {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.type-badge {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.step-badge {
+  background: #F1F5F9;
+  color: #64748B;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .card-title {
+    font-size: 1.75rem;
+  }
+}
+
+.card-bookmaker {
+  color: #6B7280;
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+}
+
+.gain-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  color: #065F46;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #10B981;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.gain-icon {
+  font-size: 1.1rem;
+}
+
+.card-content {
+  padding: 2rem;
+}
+
+.instructions-content {
+  margin-bottom: 2rem;
+}
+
+.instructions-content :deep(h4) {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 1rem 0;
+}
+
+.instructions-content :deep(p) {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.instructions-content :deep(code) {
+  background: #F1F5F9;
+  color: #3B82F6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.875rem;
+}
+
+.instructions-content :deep(a) {
+  color: #3B82F6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.instructions-content :deep(a:hover) {
+  text-decoration: underline;
+}
+
+.additional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.deposit-info {
+  background: #FFFBEB;
+  border-color: #F59E0B;
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+}
+
+.info-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #92400E;
+  margin: 0;
+}
+
+.info-content {
+  color: #451A03;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.promo-codes {
+  margin-top: 1.5rem;
+}
+
+.promo-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 1rem 0;
+}
+
+.promo-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.promo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid #E2E8F0;
+}
+
+.promo-bookmaker {
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.promo-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.promo-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.copy-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.card-actions {
+  background: #F8FAFC;
+  padding: 2rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .action-buttons {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.action-primary {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.action-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.action-secondary {
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .action-secondary {
+    width: auto;
+  }
+}
+
+.action-secondary:hover {
+  background: #E2E8F0;
+  color: #475569;
+}
+
+.btn-settings {
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .btn-settings {
+    width: auto;
+  }
+}
+
+.btn-settings:hover {
+  background: #E2E8F0;
+  color: #475569;
+}
+
+.settings-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.help-card {
+  background: linear-gradient(135deg, #EBF4FF 0%, #DBEAFE 100%);
+  border: 1px solid #93C5FD;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.help-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.help-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #3B82F6;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.help-text {
+  flex: 1;
+}
+
+.help-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1E3A8A;
+  margin: 0 0 0.5rem 0;
+}
+
+.help-description {
+  color: #1E40AF;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 28rem;
+  width: 100%;
+  padding: 2rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 1rem 0;
+}
+
+.modal-description {
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.modal-btn-cancel {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.modal-btn-cancel:hover {
+  background: #E2E8F0;
+  color: #475569;
+}
+
+.modal-btn-confirm {
+  background: #EF4444;
+  color: white;
+}
+
+.modal-btn-confirm:hover {
+  background: #DC2626;
+}
+
+.loading-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E5E7EB;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #E5E7EB;
+  border-top: 3px solid #3B82F6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0;
+}
+
+.loading-description {
+  color: #6B7280;
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .card-header,
+  .card-content,
+  .card-actions {
+    padding: 1.5rem;
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+  }
+  
+  .promo-item {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+  
+  .help-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 </style>

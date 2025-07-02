@@ -40,11 +40,11 @@ const getStatusColor = (stepId: string) => {
   const status = programStore.stepStatuses[stepId]
   switch (status) {
     case 'done':
-      return 'text-green-600 bg-green-100 border-green-300'
+      return 'status-done'
     case 'in_progress':
-      return 'text-blue-600 bg-blue-100 border-blue-300'
+      return 'status-progress'
     default:
-      return 'text-gray-400 bg-gray-100 border-gray-300'
+      return 'status-todo'
   }
 }
 
@@ -66,77 +66,73 @@ const handleStepClick = (step: any) => {
 <template>
   <div class="stepper-container">
     <!-- Desktop/Tablet Stepper -->
-    <div class="hidden lg:block stepper-desktop">
+    <div class="stepper-desktop">
       <div class="stepper-header">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Progression du programme</h3>
+        <h3 class="stepper-title">Progression du programme</h3>
       </div>
       
-      <div class="space-y-6">
+      <div class="groups-container">
         <div 
           v-for="(group, groupIndex) in groupedSteps" 
           :key="groupIndex"
           class="group-section"
         >
           <!-- Group Header -->
-          <div class="group-header flex items-center gap-3 mb-4">
-            <div class="flex -space-x-1">
+          <div class="group-header">
+            <div class="group-logos">
               <BookmakerLogo 
                 v-for="bookmaker in group.bookmaker.split(', ')" 
                 :key="bookmaker"
                 :bookmaker="bookmaker.trim()" 
                 size="sm"
-                class="border-2 border-white"
+                class="group-logo"
               />
             </div>
-            <div>
-              <h4 class="font-semibold text-gray-900">{{ group.bookmaker }}</h4>
-              <p class="text-sm text-gray-500">
+            <div class="group-info">
+              <h4 class="group-title">{{ group.bookmaker }}</h4>
+              <p class="group-progress">
                 {{ group.steps.filter(s => programStore.stepStatuses[s.id] === 'done').length }}/{{ group.steps.length }} terminées
               </p>
             </div>
-            <div v-if="group.isCompleted" class="ml-auto">
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                ✓ Terminé
-              </span>
+            <div v-if="group.isCompleted" class="group-badge">
+              <span class="badge-completed">✓ Terminé</span>
             </div>
           </div>
 
           <!-- Steps in group -->
-          <div class="space-y-2 ml-4 border-l-2 border-gray-200 pl-4">
+          <div class="steps-container">
             <div 
               v-for="step in group.steps" 
               :key="step.id"
-              class="step-item flex items-center gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer"
+              class="step-item"
               :class="[
-                programStore.currentStepId === step.id 
-                  ? 'bg-blue-50 border-2 border-blue-200' 
-                  : 'hover:bg-gray-50 border border-gray-200',
-                canAccessStep(step) ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                programStore.currentStepId === step.id ? 'step-current' : '',
+                canAccessStep(step) ? 'step-accessible' : 'step-disabled'
               ]"
               @click="handleStepClick(step)"
             >
               <!-- Step icon and status -->
-              <div class="flex items-center gap-2">
+              <div class="step-indicator">
                 <div 
-                  class="w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium"
+                  class="step-circle"
                   :class="getStatusColor(step.id)"
                 >
                   <span v-if="programStore.stepStatuses[step.id] === 'done'">✓</span>
                   <span v-else-if="programStore.stepStatuses[step.id] === 'in_progress'">{{ step.order }}</span>
                   <span v-else>{{ step.order }}</span>
                 </div>
-                <span class="text-lg">{{ getStepIcon(step.type) }}</span>
+                <span class="step-icon">{{ getStepIcon(step.type) }}</span>
               </div>
 
               <!-- Step content -->
-              <div class="flex-1 min-w-0">
-                <h5 class="font-medium text-gray-900 truncate">{{ step.title }}</h5>
-                <p class="text-sm text-gray-500">{{ step.bookmaker }}</p>
+              <div class="step-content">
+                <h5 class="step-title">{{ step.title }}</h5>
+                <p class="step-bookmaker">{{ step.bookmaker }}</p>
               </div>
 
               <!-- Current step indicator -->
-              <div v-if="programStore.currentStepId === step.id" class="flex-shrink-0">
-                <div class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+              <div v-if="programStore.currentStepId === step.id" class="current-indicator">
+                <div class="pulse-dot"></div>
               </div>
             </div>
           </div>
@@ -145,32 +141,34 @@ const handleStepClick = (step: any) => {
     </div>
 
     <!-- Mobile Stepper -->
-    <div class="lg:hidden stepper-mobile">
+    <div class="stepper-mobile">
       <!-- Current step summary -->
-      <div class="current-step-summary bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+      <div class="current-step-summary">
+        <div class="summary-content">
+          <div class="summary-indicator">
             <div 
-              class="w-10 h-10 rounded-full border-2 flex items-center justify-center font-medium"
+              class="summary-circle"
               :class="getStatusColor(programStore.currentStep?.id || '')"
             >
               {{ programStore.currentStep?.order }}
             </div>
-            <div>
-              <h4 class="font-semibold text-gray-900">{{ programStore.currentStep?.title }}</h4>
-              <p class="text-sm text-gray-500">{{ programStore.currentStep?.bookmaker }}</p>
-            </div>
+          </div>
+          <div class="summary-info">
+            <h4 class="summary-title">{{ programStore.currentStep?.title }}</h4>
+            <p class="summary-bookmaker">{{ programStore.currentStep?.bookmaker }}</p>
           </div>
           <button 
             @click="showMobileAccordion = !showMobileAccordion"
-            class="p-2 text-gray-400 hover:text-gray-600"
+            class="summary-toggle"
           >
             <svg 
-              class="w-5 h-5 transition-transform duration-200"
-              :class="{ 'rotate-180': showMobileAccordion }"
+              class="toggle-icon"
+              :class="{ 'toggle-rotated': showMobileAccordion }"
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
               fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
@@ -181,59 +179,57 @@ const handleStepClick = (step: any) => {
       <!-- Expandable full stepper -->
       <div 
         v-if="showMobileAccordion"
-        class="mobile-accordion bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+        class="mobile-accordion"
       >
-        <h3 class="font-semibold text-gray-900 mb-4">Toutes les étapes</h3>
+        <h3 class="accordion-title">Toutes les étapes</h3>
         
-        <div class="space-y-4">
+        <div class="accordion-groups">
           <div 
             v-for="(group, groupIndex) in groupedSteps" 
             :key="groupIndex"
-            class="group-section"
+            class="accordion-group"
           >
             <!-- Group Header -->
-            <div class="group-header flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
+            <div class="accordion-group-header">
               <BookmakerLogo 
                 v-for="bookmaker in group.bookmaker.split(', ').slice(0, 1)" 
                 :key="bookmaker"
                 :bookmaker="bookmaker.trim()" 
                 size="sm"
               />
-              <div class="flex-1">
-                <h4 class="font-medium text-gray-900 text-sm">{{ group.bookmaker }}</h4>
-                <p class="text-xs text-gray-500">
+              <div class="accordion-group-info">
+                <h4 class="accordion-group-title">{{ group.bookmaker }}</h4>
+                <p class="accordion-group-progress">
                   {{ group.steps.filter(s => programStore.stepStatuses[s.id] === 'done').length }}/{{ group.steps.length }}
                 </p>
               </div>
-              <div v-if="group.isCompleted">
-                <span class="text-green-600 text-sm">✓</span>
+              <div v-if="group.isCompleted" class="accordion-group-badge">
+                <span>✓</span>
               </div>
             </div>
 
             <!-- Steps -->
-            <div class="space-y-2 ml-2">
+            <div class="accordion-steps">
               <div 
                 v-for="step in group.steps" 
                 :key="step.id"
-                class="step-item flex items-center gap-2 p-2 rounded-lg"
+                class="accordion-step"
                 :class="[
-                  programStore.currentStepId === step.id 
-                    ? 'bg-blue-50 border border-blue-200' 
-                    : 'border border-gray-100',
-                  canAccessStep(step) ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                  programStore.currentStepId === step.id ? 'accordion-step-current' : '',
+                  canAccessStep(step) ? 'accordion-step-accessible' : 'accordion-step-disabled'
                 ]"
                 @click="handleStepClick(step)"
               >
                 <div 
-                  class="w-6 h-6 rounded-full border flex items-center justify-center text-xs"
+                  class="accordion-step-circle"
                   :class="getStatusColor(step.id)"
                 >
                   <span v-if="programStore.stepStatuses[step.id] === 'done'">✓</span>
                   <span v-else>{{ step.order }}</span>
                 </div>
-                <span class="text-sm">{{ getStepIcon(step.type) }}</span>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">{{ step.title }}</p>
+                <span class="accordion-step-icon">{{ getStepIcon(step.type) }}</span>
+                <div class="accordion-step-content">
+                  <p class="accordion-step-title">{{ step.title }}</p>
                 </div>
               </div>
             </div>
@@ -243,18 +239,18 @@ const handleStepClick = (step: any) => {
     </div>
 
     <!-- Progress indicator -->
-    <div class="progress-summary mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-medium text-gray-700">Progression globale</span>
-        <span class="text-sm font-bold text-blue-600">{{ programStore.progressPercentage }}%</span>
+    <div class="progress-summary">
+      <div class="progress-header">
+        <span class="progress-label">Progression globale</span>
+        <span class="progress-percentage">{{ programStore.progressPercentage }}%</span>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2">
+      <div class="progress-bar">
         <div 
-          class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+          class="progress-fill"
           :style="{ width: `${programStore.progressPercentage}%` }"
         ></div>
       </div>
-      <div class="flex justify-between text-xs text-gray-500 mt-1">
+      <div class="progress-footer">
         <span>{{ programStore.completedSteps }} terminées</span>
         <span>{{ programStore.totalSteps }} total</span>
       </div>
@@ -268,40 +264,322 @@ const handleStepClick = (step: any) => {
 }
 
 .stepper-desktop {
-  position: sticky;
-  top: 2rem;
-  max-height: calc(100vh - 4rem);
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E5E7EB;
+  max-height: calc(100vh - 8rem);
   overflow-y: auto;
-  padding-right: 1rem;
 }
 
 .stepper-desktop::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .stepper-desktop::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 2px;
+  background: #F1F5F9;
+  border-radius: 3px;
 }
 
 .stepper-desktop::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
+  background: #CBD5E1;
+  border-radius: 3px;
 }
 
 .stepper-desktop::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
+}
+
+.stepper-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.stepper-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0;
+}
+
+.groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.group-section {
+  position: relative;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #F8FAFC;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+}
+
+.group-logos {
+  display: flex;
+  gap: -0.25rem;
+}
+
+.group-logo {
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.group-info {
+  flex: 1;
+}
+
+.group-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.group-progress {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.group-badge {
+  margin-left: auto;
+}
+
+.badge-completed {
+  background: #ECFDF5;
+  color: #065F46;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #10B981;
+}
+
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid #E5E7EB;
 }
 
 .step-item {
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #E5E7EB;
+  background: white;
 }
 
-.step-item:hover:not(.cursor-not-allowed) {
-  transform: translateX(2px);
+.step-item:hover:not(.step-disabled) {
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.step-current {
+  background: #EBF4FF;
+  border-color: #3B82F6;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+}
+
+.step-accessible {
+  cursor: pointer;
+}
+
+.step-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-circle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.status-done {
+  background: #ECFDF5;
+  border-color: #10B981;
+  color: #065F46;
+}
+
+.status-progress {
+  background: #EBF4FF;
+  border-color: #3B82F6;
+  color: #1E3A8A;
+}
+
+.status-todo {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+  color: #6B7280;
+}
+
+.step-icon {
+  font-size: 1.25rem;
+}
+
+.step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-bookmaker {
+  font-size: 0.8rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.current-indicator {
+  flex-shrink: 0;
+}
+
+.pulse-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #3B82F6;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mobile Stepper */
+.stepper-mobile {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .stepper-mobile {
+    display: none;
+  }
+}
+
+.current-step-summary {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E5E7EB;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.summary-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.summary-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.summary-info {
+  flex: 1;
+  margin-left: 0.75rem;
+}
+
+.summary-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.summary-bookmaker {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.summary-toggle {
+  background: none;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.summary-toggle:hover {
+  background: #F1F5F9;
+  color: #374151;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.toggle-rotated {
+  transform: rotate(180deg);
 }
 
 .mobile-accordion {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E5E7EB;
+  padding: 1rem;
   animation: slideDown 0.3s ease-out;
 }
 
@@ -316,18 +594,170 @@ const handleStepClick = (step: any) => {
   }
 }
 
-.group-section {
-  position: relative;
+.accordion-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0 0 1rem 0;
 }
 
-.group-section:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  bottom: -1rem;
-  left: 1rem;
-  right: 1rem;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+.accordion-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.accordion-group {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.accordion-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #F8FAFC;
+}
+
+.accordion-group-info {
+  flex: 1;
+}
+
+.accordion-group-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1F2937;
+  margin: 0;
+}
+
+.accordion-group-progress {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+.accordion-group-badge {
+  color: #10B981;
+  font-size: 0.875rem;
+}
+
+.accordion-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+
+.accordion-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.accordion-step-current {
+  background: #EBF4FF;
+  border: 1px solid #3B82F6;
+}
+
+.accordion-step-accessible {
+  cursor: pointer;
+}
+
+.accordion-step-accessible:hover {
+  background: #F8FAFC;
+}
+
+.accordion-step-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.accordion-step-circle {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.accordion-step-icon {
+  font-size: 1rem;
+}
+
+.accordion-step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.accordion-step-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1F2937;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Progress Summary */
+.progress-summary {
+  background: linear-gradient(135deg, #EBF4FF 0%, #F3E8FF 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  border: 1px solid #E0E7FF;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #3B82F6;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #E5E7EB;
+  border-radius: 4px;
+  height: 0.5rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 4px;
+}
+
+.progress-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #6B7280;
 }
 
 @media (max-width: 1023px) {
