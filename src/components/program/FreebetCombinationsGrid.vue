@@ -17,26 +17,31 @@
           ✅
         </div>
 
-        <!-- Résumé des matchs en haut -->
-        <div class="matches-header">
-          <span class="match-prediction">
-            <span class="team-short">PSG</span>
-            <span class="prediction-icon" :class="getPredictionClass(combination.predictions[0])">
-              {{ getPredictionIcon(combination.predictions[0]) }}
+        <!-- Bookmaker en haut à gauche -->
+        <div class="bookmaker-badge">
+          {{ combination.bookmaker }}
+        </div>
+
+        <!-- Pronostics détaillés -->
+        <div class="predictions-section">
+          <div class="prediction-item">
+            <span class="match-teams">PSG vs OM</span>
+            <span class="prediction-result" :class="getPredictionClass(combination.predictions[0])">
+              {{ getPredictionLabel(combination.predictions[0]) }}
             </span>
-          </span>
-          <span class="match-prediction">
-            <span class="team-short">LYO</span>
-            <span class="prediction-icon" :class="getPredictionClass(combination.predictions[1])">
-              {{ getPredictionIcon(combination.predictions[1]) }}
+          </div>
+          <div class="prediction-item">
+            <span class="match-teams">Lyon vs Nice</span>
+            <span class="prediction-result" :class="getPredictionClass(combination.predictions[1])">
+              {{ getPredictionLabel(combination.predictions[1]) }}
             </span>
-          </span>
-          <span class="match-prediction">
-            <span class="team-short">LIL</span>
-            <span class="prediction-icon" :class="getPredictionClass(combination.predictions[2])">
-              {{ getPredictionIcon(combination.predictions[2]) }}
+          </div>
+          <div class="prediction-item">
+            <span class="match-teams">Lille vs Rennes</span>
+            <span class="prediction-result" :class="getPredictionClass(combination.predictions[2])">
+              {{ getPredictionLabel(combination.predictions[2]) }}
             </span>
-          </span>
+          </div>
         </div>
 
         <!-- Côte combinée (élément principal) -->
@@ -44,14 +49,9 @@
           @{{ combination.combinedOdds }}
         </div>
 
-        <!-- Gain potentiel -->
-        <div class="potential-gain">
-          +{{ combination.potentialGain.toLocaleString() }} €
-        </div>
-
-        <!-- Répartition des mises -->
-        <div class="stake-distribution">
-          Zebet : {{ combination.stakes.zebet }} € • Winamax : {{ combination.stakes.winamax }} €
+        <!-- Mise -->
+        <div class="stake-amount">
+          Mise : {{ combination.stake }} €
         </div>
 
         <!-- Bouton d'état -->
@@ -90,13 +90,10 @@ import { ref, onMounted } from 'vue'
 
 interface Combination {
   id: string
-  predictions: number[] // 1, 0, 2 pour chaque match
+  predictions: number[] // 1, 2, 3 pour chaque match (V, N, D)
   combinedOdds: string
-  potentialGain: number
-  stakes: {
-    zebet: number
-    winamax: number
-  }
+  stake: number
+  bookmaker: string
   alreadyBet: boolean
 }
 
@@ -107,6 +104,7 @@ const combinations = ref<Combination[]>([])
 
 const generateCombinations = () => {
   const results: Combination[] = []
+  const bookmakers = ['Zebet', 'Winamax']
   let id = 1
 
   // Générer toutes les combinaisons possibles (3^3 = 27)
@@ -115,25 +113,22 @@ const generateCombinations = () => {
       for (let match3 = 1; match3 <= 3; match3++) {
         const predictions = [match1, match2, match3]
         
-        // Calcul simulé des côtes et gains
+        // Calcul simulé des côtes
         const baseOdd = 2.5 + Math.random() * 15
         const combinedOdds = baseOdd.toFixed(2)
-        const totalStake = 100
-        const potentialGain = Math.round(totalStake * parseFloat(combinedOdds))
         
-        // Répartition aléatoire des mises
-        const zebetStake = Math.round(30 + Math.random() * 40)
-        const winamaxStake = totalStake - zebetStake
+        // Un seul bookmaker par combiné
+        const bookmaker = bookmakers[Math.floor(Math.random() * bookmakers.length)]
+        
+        // Mise fixe ou variable selon le bookmaker
+        const stake = bookmaker === 'Zebet' ? 100 : 100
 
         results.push({
           id: `combo-${id}`,
           predictions,
           combinedOdds,
-          potentialGain,
-          stakes: {
-            zebet: zebetStake,
-            winamax: winamaxStake
-          },
+          stake,
+          bookmaker,
           alreadyBet: Math.random() > 0.7 // 30% de chance d'être déjà pronostiqué
         })
         id++
@@ -153,20 +148,20 @@ const toggleSelection = (combinationId: string) => {
   }
 }
 
-const getPredictionIcon = (prediction: number) => {
+const getPredictionLabel = (prediction: number) => {
   switch (prediction) {
-    case 1: return '🔵'
-    case 2: return '⚪'
-    case 3: return '🔴'
-    default: return '❓'
+    case 1: return 'V' // Victoire
+    case 2: return 'N' // Nul
+    case 3: return 'D' // Défaite
+    default: return '?'
   }
 }
 
 const getPredictionClass = (prediction: number) => {
   switch (prediction) {
-    case 1: return 'prediction-home'
+    case 1: return 'prediction-win'
     case 2: return 'prediction-draw'
-    case 3: return 'prediction-away'
+    case 3: return 'prediction-loss'
     default: return 'prediction-unknown'
   }
 }
@@ -191,16 +186,9 @@ onMounted(() => {
 
 .combinations-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   margin-bottom: 2rem;
-}
-
-@media (max-width: 1024px) {
-  .combinations-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
 }
 
 @media (max-width: 767px) {
@@ -214,12 +202,11 @@ onMounted(() => {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.25rem;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  width: 300px;
-  height: 180px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -228,9 +215,8 @@ onMounted(() => {
 
 @media (max-width: 767px) {
   .combination-card {
-    width: 100%;
     height: 150px;
-    padding: 0.875rem;
+    padding: 1rem;
   }
 }
 
@@ -254,60 +240,82 @@ onMounted(() => {
 
 .selection-icon {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.75rem;
+  right: 0.75rem;
   font-size: 1rem;
   z-index: 1;
 }
 
-.matches-header {
+.bookmaker-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.predictions-section {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.prediction-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 0.8rem;
+  padding: 0.25rem 0;
+}
+
+.match-teams {
+  font-size: 0.85rem;
   color: #64748b;
-}
-
-.match-prediction {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.team-short {
   font-weight: 500;
-  font-size: 0.75rem;
 }
 
-.prediction-icon {
+.prediction-result {
   font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  min-width: 24px;
+  text-align: center;
 }
 
-.prediction-home { color: #3b82f6; }
-.prediction-draw { color: #6b7280; }
-.prediction-away { color: #ef4444; }
+.prediction-win {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.prediction-draw {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.prediction-loss {
+  background: #fee2e2;
+  color: #dc2626;
+}
 
 .combined-odds {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   text-align: center;
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
 }
 
-.potential-gain {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #10b981;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.stake-distribution {
-  font-size: 0.8rem;
+.stake-amount {
+  font-size: 0.9rem;
   color: #64748b;
   text-align: center;
+  font-weight: 500;
   margin-bottom: 0.5rem;
 }
 
@@ -377,16 +385,20 @@ onMounted(() => {
     font-size: 1.25rem;
   }
   
-  .potential-gain {
-    font-size: 0.9rem;
-  }
-  
-  .stake-distribution {
-    font-size: 0.75rem;
+  .stake-amount {
+    font-size: 0.8rem;
   }
   
   .status-badge {
     font-size: 0.65rem;
+  }
+  
+  .match-teams {
+    font-size: 0.8rem;
+  }
+  
+  .prediction-result {
+    font-size: 0.8rem;
   }
 }
 </style>
