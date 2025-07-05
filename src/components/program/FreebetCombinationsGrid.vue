@@ -11,6 +11,7 @@
           'already-bet': combination.alreadyBet 
         }"
         @click="toggleSelection(combination.id)"
+        @dblclick="markAsBet(combination.id)"
       >
         <!-- Icône de sélection -->
         <div v-if="selectedCombinations.includes(combination.id)" class="selection-icon">
@@ -22,45 +23,58 @@
           {{ combination.bookmaker }}
         </div>
 
+        <!-- Indication d'interaction -->
+        <div class="interaction-hint">
+          <div class="hint-text">
+            <span class="click-hint">Clic = Sélectionner</span>
+            <span class="double-click-hint">Double-clic = Marquer comme fait</span>
+          </div>
+        </div>
+
+        <!-- Section principale avec côte et mise -->
+        <div class="main-info">
+          <div class="odds-section">
+            <span class="odds-label">Côte</span>
+            <span class="combined-odds">@{{ combination.combinedOdds }}</span>
+          </div>
+          <div class="stake-section">
+            <span class="stake-label">Mise</span>
+            <span class="stake-amount">{{ combination.stake }} €</span>
+          </div>
+        </div>
+
         <!-- Pronostics détaillés -->
         <div class="predictions-section">
           <div class="prediction-item">
             <span class="match-teams">PSG vs OM</span>
+            <span class="arrow">→</span>
             <span class="prediction-result" :class="getPredictionClass(combination.predictions[0])">
               {{ getPredictionLabel(combination.predictions[0]) }}
             </span>
           </div>
           <div class="prediction-item">
             <span class="match-teams">Lyon vs Nice</span>
+            <span class="arrow">→</span>
             <span class="prediction-result" :class="getPredictionClass(combination.predictions[1])">
               {{ getPredictionLabel(combination.predictions[1]) }}
             </span>
           </div>
           <div class="prediction-item">
             <span class="match-teams">Lille vs Rennes</span>
+            <span class="arrow">→</span>
             <span class="prediction-result" :class="getPredictionClass(combination.predictions[2])">
               {{ getPredictionLabel(combination.predictions[2]) }}
             </span>
           </div>
         </div>
 
-        <!-- Côte combinée (élément principal) -->
-        <div class="combined-odds">
-          @{{ combination.combinedOdds }}
-        </div>
-
-        <!-- Mise -->
-        <div class="stake-amount">
-          Mise : {{ combination.stake }} €
-        </div>
-
         <!-- Bouton d'état -->
         <div class="bet-status">
           <span v-if="combination.alreadyBet" class="status-badge already-bet">
-            Déjà pronostiqué
+            ✅ Déjà pronostiqué
           </span>
           <span v-else class="status-badge not-bet">
-            Non pronostiqué
+            ⏳ Non pronostiqué
           </span>
         </div>
       </div>
@@ -148,6 +162,14 @@ const toggleSelection = (combinationId: string) => {
   }
 }
 
+const markAsBet = (combinationId: string) => {
+  const combination = combinations.value.find(c => c.id === combinationId)
+  if (combination) {
+    combination.alreadyBet = !combination.alreadyBet
+    console.log(`Combinaison ${combinationId} marquée comme ${combination.alreadyBet ? 'effectuée' : 'non effectuée'}`)
+  }
+}
+
 const getPredictionLabel = (prediction: number) => {
   switch (prediction) {
     case 1: return 'V' // Victoire
@@ -206,7 +228,7 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  height: 200px;
+  height: 240px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -215,7 +237,7 @@ onMounted(() => {
 
 @media (max-width: 767px) {
   .combination-card {
-    height: 150px;
+    height: 180px;
     padding: 1rem;
   }
 }
@@ -226,6 +248,11 @@ onMounted(() => {
   border-color: #cbd5e1;
 }
 
+.combination-card:hover .interaction-hint {
+  opacity: 1;
+  visibility: visible;
+}
+
 .combination-card.selected {
   border-color: #3b82f6;
   border-width: 3px;
@@ -234,8 +261,9 @@ onMounted(() => {
 }
 
 .combination-card.already-bet {
-  opacity: 0.7;
+  opacity: 0.8;
   background: #f8fafc;
+  border-color: #10b981;
 }
 
 .selection-icon {
@@ -243,7 +271,7 @@ onMounted(() => {
   top: 0.75rem;
   right: 0.75rem;
   font-size: 1rem;
-  z-index: 1;
+  z-index: 2;
 }
 
 .bookmaker-badge {
@@ -256,10 +284,83 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 600;
+  z-index: 1;
+}
+
+.interaction-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 3;
+  pointer-events: none;
+  text-align: center;
+  min-width: 200px;
+}
+
+.hint-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.click-hint {
+  color: #93c5fd;
+}
+
+.double-click-hint {
+  color: #86efac;
+}
+
+.main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2.5rem 0 1rem 0;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.odds-section,
+.stake-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.odds-label,
+.stake-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.combined-odds {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.stake-amount {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #059669;
 }
 
 .predictions-section {
-  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -277,6 +378,13 @@ onMounted(() => {
   font-size: 0.85rem;
   color: #64748b;
   font-weight: 500;
+  flex: 1;
+}
+
+.arrow {
+  color: #94a3b8;
+  font-weight: 600;
+  margin: 0 0.5rem;
 }
 
 .prediction-result {
@@ -303,42 +411,32 @@ onMounted(() => {
   color: #dc2626;
 }
 
-.combined-odds {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  text-align: center;
-  margin: 0.75rem 0;
-}
-
-.stake-amount {
-  font-size: 0.9rem;
-  color: #64748b;
-  text-align: center;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
 .bet-status {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  margin-top: 0.5rem;
 }
 
 .status-badge {
-  font-size: 0.7rem;
-  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
   border-radius: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .status-badge.already-bet {
-  background: #fef3c7;
-  color: #92400e;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
 }
 
 .status-badge.not-bet {
-  background: #ecfdf5;
-  color: #065f46;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .actions-bar {
@@ -381,16 +479,27 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
+  .main-info {
+    margin: 2rem 0 0.75rem 0;
+    padding: 0.5rem;
+  }
+  
   .combined-odds {
     font-size: 1.25rem;
   }
   
   .stake-amount {
-    font-size: 0.8rem;
+    font-size: 1rem;
+  }
+  
+  .odds-label,
+  .stake-label {
+    font-size: 0.7rem;
   }
   
   .status-badge {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
   }
   
   .match-teams {
@@ -399,6 +508,15 @@ onMounted(() => {
   
   .prediction-result {
     font-size: 0.8rem;
+  }
+  
+  .interaction-hint {
+    min-width: 160px;
+    padding: 0.5rem;
+  }
+  
+  .hint-text {
+    font-size: 0.7rem;
   }
 }
 </style>
