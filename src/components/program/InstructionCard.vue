@@ -6,6 +6,7 @@ import SignupInstruction from './SignupInstruction.vue'
 import SignupInInstructionHeader from './SignupInstructionHeader.vue'
 import BetInstruction from './BetInstruction.vue'
 import BetInstructionHeader from './BetInstructionHeader.vue'
+import FreebetInstruction from './FreebetInstruction.vue'
 
 const programStore = useProgramStore()
 const showSkipConfirmation = ref(false)
@@ -128,10 +129,6 @@ const getStepTypeLabel = (type: string) => {
 
     <!-- Contenu des instructions -->
     <div class="card-content">
-      <!-- <div class="instructions-content">
-        <div v-html="currentStep.instructions"></div>
-      </div> -->
-
       <div v-if="currentStep.type === 'signup'">
         <SignupInInstructionHeader/>
         <div v-for="(bookmaker, index) in currentStep.bookmakerStep" :key="index" style="margin-top: 10px;margin-bottom: 10px;">
@@ -144,25 +141,9 @@ const getStepTypeLabel = (type: string) => {
         <BetInstruction :currentStep="currentStep"/>
       </div>
 
-
-      <!-- Informations supplémentaires selon le type d'étape -->
-      <!-- <div v-if="currentStep.payload" class="additional-info"> -->
-        <!-- Montant de dépôt -->
-
-        <!-- <div v-if="currentStep.payload.depositAmount" class="info-card deposit-info">
-          <div class="info-header">
-            <span class="info-icon">💳</span>
-            <h4 class="info-title">Montant à déposer</h4>
-          </div>
-          <p class="info-content">
-            {{ currentStep.payload.depositAmount }}€ par site
-            <span v-if="currentStep.bookmaker.includes(',')">
-              ({{ currentStep.payload.depositAmount * currentStep.bookmaker.split(',').length }}€ au total)
-            </span>
-          </p>
-        </div> -->
-        
-      <!-- </div> -->
+      <div v-if="currentStep.type === 'freebet'">
+        <FreebetInstruction :currentStep="currentStep"/>
+      </div>
     </div>
 
     <!-- Actions -->
