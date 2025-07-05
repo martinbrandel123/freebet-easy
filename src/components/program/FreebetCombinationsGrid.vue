@@ -34,11 +34,11 @@
         <!-- Section principale avec côte et mise -->
         <div class="main-info">
           <div class="odds-section">
-            <span class="odds-label">Côte</span>
+            <span class="odds-label">CÔTE</span>
             <span class="combined-odds">@{{ combination.combinedOdds }}</span>
           </div>
           <div class="stake-section">
-            <span class="stake-label">Mise</span>
+            <span class="stake-label">MISE</span>
             <span class="stake-amount">{{ combination.stake }} €</span>
           </div>
         </div>
@@ -224,21 +224,20 @@ onMounted(() => {
   background: white;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  height: 240px;
+  min-height: 280px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 767px) {
   .combination-card {
-    height: 180px;
-    padding: 1rem;
+    min-height: 220px;
+    padding: 0.875rem;
   }
 }
 
@@ -324,7 +323,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 2.5rem 0 1rem 0;
+  margin: 2.25rem 0 1rem 0;
   padding: 0.75rem;
   background: #f8fafc;
   border-radius: 8px;
@@ -341,21 +340,21 @@ onMounted(() => {
 
 .odds-label,
 .stake-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #64748b;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .combined-odds {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #1e293b;
 }
 
 .stake-amount {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #059669;
 }
@@ -365,6 +364,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
+  margin-bottom: 0.75rem;
 }
 
 .prediction-item {
@@ -375,20 +375,22 @@ onMounted(() => {
 }
 
 .match-teams {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #64748b;
   font-weight: 500;
   flex: 1;
+  text-align: left;
 }
 
 .arrow {
   color: #94a3b8;
   font-weight: 600;
   margin: 0 0.5rem;
+  font-size: 0.8rem;
 }
 
 .prediction-result {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
@@ -414,11 +416,11 @@ onMounted(() => {
 .bet-status {
   display: flex;
   justify-content: center;
-  margin-top: 0.5rem;
+  margin-top: auto;
 }
 
 .status-badge {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   padding: 0.375rem 0.75rem;
   border-radius: 12px;
   font-weight: 600;
@@ -480,12 +482,12 @@ onMounted(() => {
 
 @media (max-width: 767px) {
   .main-info {
-    margin: 2rem 0 0.75rem 0;
+    margin: 1.75rem 0 0.75rem 0;
     padding: 0.5rem;
   }
   
   .combined-odds {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
   
   .stake-amount {
@@ -494,20 +496,26 @@ onMounted(() => {
   
   .odds-label,
   .stake-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
   
   .status-badge {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     padding: 0.25rem 0.5rem;
   }
   
   .match-teams {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
   
   .prediction-result {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .arrow {
+    font-size: 0.7rem;
+    margin: 0 0.25rem;
   }
   
   .interaction-hint {
