@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useProgramStore } from '../../stores/program'
 import BookmakerLogo from './BookmakerLogo.vue'
 
@@ -24,6 +24,17 @@ const groupedSteps = computed(() => {
     hasStarted: steps.some(step => programStore.stepStatuses[step.id] !== 'todo')
   }))
 })
+
+
+const openGroups = ref<Record<string, boolean>>({});
+
+// Initialiser tous les groupes comme ouverts par défaut
+onMounted(() => {
+  groupedSteps.value.forEach(group => {
+    openGroups.value[group.bookmaker] = true;
+  });
+});
+
 
 const getStepIcon = (type: string) => {
   const icons = {
@@ -71,6 +82,7 @@ const handleStepClick = (step: any) => {
         <h3 class="stepper-title">Progression du programme</h3>
       </div>
       
+
       <div class="groups-container">
         <div 
           v-for="(group, groupIndex) in groupedSteps" 
@@ -78,29 +90,40 @@ const handleStepClick = (step: any) => {
           class="group-section"
         >
           <!-- Group Header -->
-          <div class="group-header">
-            <div class="group-logos">
-              <BookmakerLogo 
-                v-for="bookmaker in group.bookmaker.split(', ')" 
-                :key="bookmaker"
-                :bookmaker="bookmaker.trim()" 
-                size="sm"
-                class="group-logo"
-              />
-            </div>
-            <div class="group-info">
-              <h4 class="group-title">{{ group.bookmaker }}</h4>
-              <p class="group-progress">
-                {{ group.steps.filter(s => programStore.stepStatuses[s.id] === 'done').length }}/{{ group.steps.length }} terminées
-              </p>
-            </div>
-            <div v-if="group.isCompleted" class="group-badge">
-              <span class="badge-completed">✓ Terminé</span>
-            </div>
+        <div class="group-header" @click.stop="openGroups[group.bookmaker] = !openGroups[group.bookmaker]">
+          <div class="group-info">
+            <h4 class="group-title">{{ group.bookmaker }}</h4>
+            <p class="group-progress">
+              {{ group.steps.filter(s => programStore.stepStatuses[s.id] === 'done').length }}/{{ group.steps.length }} terminées
+            </p>
           </div>
+          <div v-if="group.isCompleted" class="group-badge">
+            <span class="badge-completed">✓ Terminé</span>
+          </div>
+          <div class="group-toggle">
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor"
+              :class="{ 'rotate-180': !openGroups[group.bookmaker] }"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </div>
+        </div>
+
+<!-- Steps in group - modifié -->
+<div 
+  class="steps-container"
+  v-if="openGroups[group.bookmaker]"
+>
+  <!-- ... contenu existant des steps ... -->
+</div>
 
           <!-- Steps in group -->
-          <div class="steps-container">
+          <div class="steps-container"  v-if="openGroups[group.bookmaker]">
             <div 
               v-for="step in group.steps" 
               :key="step.id"
@@ -121,13 +144,13 @@ const handleStepClick = (step: any) => {
                   <span v-else-if="programStore.stepStatuses[step.id] === 'in_progress'">{{ step.order }}</span>
                   <span v-else>{{ step.order }}</span>
                 </div>
-                <span class="step-icon">{{ getStepIcon(step.type) }}</span>
+                <!-- <span class="step-icon">{{ getStepIcon(step.type) }}</span> -->
               </div>
 
               <!-- Step content -->
               <div class="step-content">
                 <h5 class="step-title">{{ step.title }}</h5>
-                <p class="step-bookmaker">{{ step.bookmaker }}</p>
+                <!-- <p class="step-bookmaker">{{ step.bookmaker }}</p> -->
               </div>
 
               <!-- Current step indicator -->
@@ -325,6 +348,26 @@ const handleStepClick = (step: any) => {
   border: 1px solid #E2E8F0;
 }
 
+.group-header:hover {
+  background-color: #f0f4f8;
+}
+
+.group-toggle {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
 .group-logos {
   display: flex;
   gap: -0.25rem;
@@ -458,7 +501,6 @@ const handleStepClick = (step: any) => {
   font-weight: 600;
   color: #1F2937;
   margin: 0 0 0.25rem 0;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }

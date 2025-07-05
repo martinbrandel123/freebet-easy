@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useProgramStore } from '../../stores/program'
-import HeaderSummary from '../../components/program/HeaderSummary.vue'
+// import HeaderSummary from '../../components/program/HeaderSummary.vue'
 import Stepper from '../../components/program/Stepper.vue'
 import InstructionCard from '../../components/program/InstructionCard.vue'
 import HistoryDrawer from '../../components/program/HistoryDrawer.vue'
@@ -11,7 +11,8 @@ const showHistoryDrawer = ref(false)
 const showDebugPanel = ref(false)
 
 // Move import.meta.env.DEV check to script section
-const isDevMode = import.meta.env.DEV
+// const isDevMode = import.meta.env.DEV
+ const isDevMode = true
 
 onMounted(() => {
   // Initialiser le programme au chargement
@@ -45,7 +46,7 @@ const skipCurrentStep = () => {
 <template>
   <div class="program-view">
     <!-- Header Summary -->
-    <HeaderSummary />
+    <HeaderSummary/>
 
     <!-- Main Content -->
     <div class="program-content">

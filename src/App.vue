@@ -3,12 +3,12 @@ import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
 import { RouterView } from 'vue-router'
 
-const authStore = useAuthStore()
+// const authStore = useAuthStore()
 
-onMounted(() => {
-  // Initialiser le store d'authentification au démarrage
-  authStore.init()
-})
+// onMounted(() => {
+//   // Initialiser le store d'authentification au démarrage
+//   authStore.init()
+// })
 </script>
 
 <template>

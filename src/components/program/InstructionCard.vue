@@ -2,6 +2,10 @@
 import { ref, computed } from 'vue'
 import { useProgramStore } from '../../stores/program'
 import BookmakerLogo from './BookmakerLogo.vue'
+import SignupInstruction from './SignupInstruction.vue'
+import SignupInInstructionHeader from './SignupInstructionHeader.vue'
+import BetInstruction from './BetInstruction.vue'
+import BetInstructionHeader from './BetInstructionHeader.vue'
 
 const programStore = useProgramStore()
 const showSkipConfirmation = ref(false)
@@ -118,25 +122,34 @@ const getStepTypeLabel = (type: string) => {
             {{ currentStep.bookmaker }}
           </p>
 
-          <!-- Informations sur les gains attendus -->
-          <div v-if="currentStep.payload?.expectedGain" class="gain-badge">
-            <span class="gain-icon">💰</span>
-            <span>Gain attendu : +{{ currentStep.payload.expectedGain }}€</span>
-          </div>
         </div>
       </div>
     </div>
 
     <!-- Contenu des instructions -->
     <div class="card-content">
-      <div class="instructions-content">
+      <!-- <div class="instructions-content">
         <div v-html="currentStep.instructions"></div>
+      </div> -->
+
+      <div v-if="currentStep.type === 'signup'">
+        <SignupInInstructionHeader/>
+        <div v-for="(bookmaker, index) in currentStep.bookmakerStep" :key="index" style="margin-top: 10px;margin-bottom: 10px;">
+          <SignupInstruction :bookmakerData="bookmaker"/>
+        </div>
       </div>
 
+      <div v-if="currentStep.type === 'bet'">
+        <BetInstructionHeader :bookmakerData="currentStep"/>
+        <BetInstruction :currentStep="currentStep"/>
+      </div>
+
+
       <!-- Informations supplémentaires selon le type d'étape -->
-      <div v-if="currentStep.payload" class="additional-info">
+      <!-- <div v-if="currentStep.payload" class="additional-info"> -->
         <!-- Montant de dépôt -->
-        <div v-if="currentStep.payload.depositAmount" class="info-card deposit-info">
+
+        <!-- <div v-if="currentStep.payload.depositAmount" class="info-card deposit-info">
           <div class="info-header">
             <span class="info-icon">💳</span>
             <h4 class="info-title">Montant à déposer</h4>
@@ -147,31 +160,9 @@ const getStepTypeLabel = (type: string) => {
               ({{ currentStep.payload.depositAmount * currentStep.bookmaker.split(',').length }}€ au total)
             </span>
           </p>
-        </div>
-
-        <!-- Codes promo -->
-        <div v-if="currentStep.type === 'signup'" class="promo-codes">
-          <h4 class="promo-title">Codes promo à utiliser :</h4>
-          <div class="promo-grid">
-            <div 
-              v-for="bookmaker in currentStep.bookmaker.split(', ')" 
-              :key="bookmaker"
-              class="promo-item"
-            >
-              <span class="promo-bookmaker">{{ bookmaker.trim() }}</span>
-              <button 
-                @click="copyToClipboard('BONUS100')"
-                class="promo-button"
-              >
-                <span>BONUS100</span>
-                <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        </div> -->
+        
+      <!-- </div> -->
     </div>
 
     <!-- Actions -->
@@ -803,4 +794,5 @@ const getStepTypeLabel = (type: string) => {
     text-align: center;
   }
 }
+
 </style>

@@ -5,19 +5,34 @@ export interface Step {
   id: string
   order: number
   type: 'signup' | 'deposit' | 'bet' | 'result' | 'freebet'
-  bookmaker: string
+  bookmaker: string,
+  bet?: string,
+  matrice?: string[],
+  matchInfo?: MatchInfo,
+  bookmakerStep: BookmakerStep[]
   title: string
-  instructions: string
-  payload?: {
-    depositAmount?: number
-    odds?: number
-    betAmount?: number
-    promoCode?: string
-    referralLink?: string
-    expectedGain?: number
-  }
   status: 'todo' | 'in_progress' | 'done'
   isOptional?: boolean
+}
+
+export interface MatchInfo {
+  homeTeam: string,
+  awayTeam: string,
+  competition: string,
+  startingDate: string
+}
+
+export interface BookmakerStep {
+  name: string;
+  bonus?: number;
+  affiliateLink?: string;
+  tutoSubscriptionVideoLink?: string;
+  deposit?: number;
+  bet?: string;
+  betToTake?: string;
+  betOdd?: number;
+  betAmount?: number;
+  amountType?: 'cash' | 'freebet';
 }
 
 export interface BookmakerGroup {
@@ -48,146 +63,126 @@ export const useProgramStore = defineStore('program', () => {
           order: 1,
           type: 'signup',
           bookmaker: 'Zebet, Unibet, Betclic',
+          bookmakerStep: [
+            {
+              name: 'Zebet',
+              bonus: 100,
+              affiliateLink: 'zebet.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr',
+              deposit: 100,
+            },
+            {
+              name: 'Unibet',
+              bonus: 120,
+              affiliateLink: 'unibet.fr',
+              tutoSubscriptionVideoLink: 'https://www.youtube.com/watch?v=CHx12ciZ2yc&ab_channel=J%27iraidormirchezvous',
+              deposit: 120,
+            },
+            {
+              name: 'Betclic',
+              bonus: 150,
+              affiliateLink: 'betclic.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr',
+              deposit: 150,
+            }
+          ],
           title: 'Inscription sur les 3 premiers bookmakers',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Inscrivez-vous sur ces 3 sites :</h4>
-              <div class="grid gap-3">
-                <div class="p-3 border rounded-lg">
-                  <strong>1. Zebet</strong> - Bonus 100€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">WELCOME100</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage Zebet</a>
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>2. Unibet</strong> - Bonus 100€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">BONUS100</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage Unibet</a>
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>3. Betclic</strong> - Bonus 100€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">FIRST100</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage Betclic</a>
-                </div>
-              </div>
-              <p class="text-sm text-gray-600">⚠️ Utilisez impérativement nos liens de parrainage pour bénéficier des bonus</p>
-            </div>
-          `,
-          payload: {
-            depositAmount: 75,
-            expectedGain: 300
-          },
-          status: 'todo'
-        },
-        {
-          id: 'deposit-group-1',
-          order: 2,
-          type: 'deposit',
-          bookmaker: 'Zebet, Unibet, Betclic',
-          title: 'Dépôt de 75€ sur chaque site',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Effectuez un dépôt de 75€ sur chaque site :</h4>
-              <div class="bg-blue-50 p-4 rounded-lg">
-                <p><strong>Montant à déposer :</strong> 75€ × 3 = 225€ au total</p>
-                <p class="text-sm text-gray-600 mt-2">Ce montant sera récupéré + les bonus à la fin du processus</p>
-              </div>
-              <div class="space-y-2">
-                <p>✅ Zebet : 75€ déposés</p>
-                <p>✅ Unibet : 75€ déposés</p>
-                <p>✅ Betclic : 75€ déposés</p>
-              </div>
-            </div>
-          `,
-          payload: {
-            depositAmount: 75
-          },
           status: 'todo'
         },
         {
           id: 'bet-group-1',
-          order: 3,
+          order: 2,
           type: 'bet',
           bookmaker: 'Zebet, Unibet, Betclic',
-          title: 'Prise des paris croisés',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Placez ces paris simultanément :</h4>
-              <div class="grid gap-3">
-                <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <strong>Zebet :</strong> Équipe A gagne - Cote 2.1 - Mise 71€
-                </div>
-                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <strong>Unibet :</strong> Match nul - Cote 3.2 - Mise 47€
-                </div>
-                <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <strong>Betclic :</strong> Équipe B gagne - Cote 4.1 - Mise 37€
-                </div>
-              </div>
-              <div class="bg-yellow-50 p-4 rounded-lg">
-                <p class="font-semibold">⚠️ Important :</p>
-                <p class="text-sm">Placez tous les paris dans les 5 minutes pour garantir les cotes</p>
-              </div>
-            </div>
-          `,
-          payload: {
-            odds: 2.1,
-            betAmount: 155
+          bet: 'Paris SG vs Lyon',
+          matchInfo: {
+            homeTeam: 'Paris Saint Germain',
+            awayTeam: 'Lyon',
+            competition: 'Ligue 1',
+            startingDate: '2025-07-06T21:00:00'
           },
+          bookmakerStep: [
+            {
+              name: 'ZebetTTTTT',
+              bet: 'Paris SG vs Lyon',
+              betToTake: 'Paris SG gagne le match',
+              betOdd: 1.4,
+              betAmount: 100,
+              amountType: 'cash',
+            },
+            {
+              name: 'Unibet',
+              bet: 'Paris SG vs Lyon',
+              betToTake: 'Match nul',
+              betOdd: 4.2,
+              betAmount: 100,
+              amountType: 'cash',
+            },
+            {
+              name: 'Betclic',
+              betToTake: 'Lyon gagne le match',
+              betOdd: 5.7,
+              betAmount: 100,
+              amountType: 'cash',
+            }
+          ],
+          title: 'Prise des paris croisés',
           status: 'todo'
         },
         {
           id: 'freebet-group-1',
-          order: 4,
+          order: 3,
           type: 'freebet',
           bookmaker: 'Zebet, Unibet, Betclic',
+          bookmakerStep: [
+            {
+              name: 'Zebet',
+              bonus: 100,
+              affiliateLink: 'zebet.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            },
+            {
+              name: 'Unibet',
+              bonus: 120,
+              affiliateLink: 'unibet.fr',
+              tutoSubscriptionVideoLink: 'https://www.youtube.com/watch?v=CHx12ciZ2yc&ab_channel=J%27iraidormirchezvous'
+            },
+            {
+              name: 'Betclic',
+              bonus: 150,
+              affiliateLink: 'betclic.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            }
+          ],
           title: 'Optimisation des freebets',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Utilisez vos freebets obtenus :</h4>
-              <div class="space-y-3">
-                <div class="p-3 border rounded-lg">
-                  <strong>Freebet Zebet (100€) :</strong>
-                  <br>Pariez sur Équipe C - Cote 2.0
-                  <br>Gain potentiel : 100€
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>Freebet Unibet (100€) :</strong>
-                  <br>Pariez sur Équipe D - Cote 1.9
-                  <br>Gain potentiel : 90€
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>Freebet Betclic (100€) :</strong>
-                  <br>Pariez sur Équipe E - Cote 2.1
-                  <br>Gain potentiel : 110€
-                </div>
-              </div>
-            </div>
-          `,
           status: 'todo'
         },
         {
           id: 'result-group-1',
-          order: 5,
+          order: 4,
           type: 'result',
           bookmaker: 'Zebet, Unibet, Betclic',
+          bookmakerStep: [
+            {
+              name: 'Zebet',
+              bonus: 100,
+              affiliateLink: 'zebet.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            },
+            {
+              name: 'Unibet',
+              bonus: 120,
+              affiliateLink: 'unibet.fr',
+              tutoSubscriptionVideoLink: 'https://www.youtube.com/watch?v=CHx12ciZ2yc&ab_channel=J%27iraidormirchezvous'
+            },
+            {
+              name: 'Betclic',
+              bonus: 150,
+              affiliateLink: 'betclic.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            }
+          ],
           title: 'Résultats et gains',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Bilan de ce trio de bookmakers :</h4>
-              <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                <p class="text-lg font-semibold text-green-800">Gain total : +300€</p>
-                <div class="mt-3 space-y-1 text-sm">
-                  <p>• Dépôts récupérés : 225€</p>
-                  <p>• Bonus freebets : 300€</p>
-                  <p>• Gains nets : 300€</p>
-                </div>
-              </div>
-              <p class="text-center text-gray-600">Prêt pour le prochain trio de bookmakers ?</p>
-            </div>
-          `,
-          payload: {
-            expectedGain: 300
-          },
           status: 'todo'
         }
       ]
@@ -200,36 +195,31 @@ export const useProgramStore = defineStore('program', () => {
       steps: [
         {
           id: 'signup-group-2',
-          order: 6,
+          order: 5,
           type: 'signup',
           bookmaker: 'Bwin, Netbet, PMU',
+          bookmakerStep: [
+            {
+              name: 'Bwin',
+              bonus: 100,
+              affiliateLink: 'Bwin.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            },
+            {
+              name: 'Netbet',
+              bonus: 120,
+              affiliateLink: 'Netbet.fr',
+              tutoSubscriptionVideoLink: 'https://www.youtube.com/watch?v=CHx12ciZ2yc&ab_channel=J%27iraidormirchezvous'
+            },
+            {
+              name: 'PMU',
+              bonus: 150,
+              affiliateLink: 'PMU.fr',
+              tutoSubscriptionVideoLink: 'youtube.fr'
+            }
+          ],
           title: 'Inscription sur le 2ème trio',
-          instructions: `
-            <div class="space-y-4">
-              <h4 class="font-semibold text-lg">Inscrivez-vous sur ces 3 nouveaux sites :</h4>
-              <div class="grid gap-3">
-                <div class="p-3 border rounded-lg">
-                  <strong>1. Bwin</strong> - Bonus 80€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">BWIN80</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage Bwin</a>
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>2. Netbet</strong> - Bonus 100€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">NET100</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage Netbet</a>
-                </div>
-                <div class="p-3 border rounded-lg">
-                  <strong>3. PMU</strong> - Bonus 70€
-                  <br>Code promo : <code class="bg-gray-100 px-2 py-1 rounded">PMU70</code>
-                  <br><a href="#" class="text-blue-600 underline">Lien de parrainage PMU</a>
-                </div>
-              </div>
-            </div>
-          `,
-          payload: {
-            depositAmount: 60,
-            expectedGain: 250
-          },
+
           status: 'todo'
         }
         // ... autres étapes du groupe 2
@@ -262,11 +252,11 @@ export const useProgramStore = defineStore('program', () => {
 
   const currentGain = computed(() => {
     let gain = 0
-    allSteps.value.forEach(step => {
-      if (stepStatuses.value[step.id] === 'done' && step.type === 'result') {
-        gain += step.payload?.expectedGain || 0
-      }
-    })
+    // allSteps.value.forEach(step => {
+    //   if (stepStatuses.value[step.id] === 'done' && step.type === 'result') {
+    //     gain += step.payload?.expectedGain || 0
+    //   }
+    // })
     return gain
   })
 

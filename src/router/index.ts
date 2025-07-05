@@ -63,7 +63,7 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/programme',
+      path: '/program',
       name: 'program',
       component: ProgramView,
       meta: { requiresAuth: false }

@@ -36,6 +36,7 @@ const getLogo = (name: string) => {
 </script>
 
 <template>
+  
   <div 
     class="flex items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-100"
     :class="sizeClasses[size]"
