@@ -1,13 +1,22 @@
 <template>
   <div class="bilan-instruction-container">
-    <!-- En-tête avec titre et total -->
+    <!-- En-tête avec titre et totaux -->
     <div class="bilan-header">
       <h3 class="bilan-title">Résultats et gains</h3>
       <p class="bilan-subtitle">Voici le bilan de vos paris sur les 3 premiers bookmakers</p>
       
-      <div class="total-gains" :class="getTotalClass()">
-        <div class="total-label">Total des gains</div>
-        <div class="total-amount">{{ formatAmount(totalGains) }}</div>
+      <div class="totals-grid">
+        <div class="total-card total-gains" :class="getTotalGainsClass()">
+          <div class="total-label">Total des gains</div>
+          <div class="total-amount">{{ formatAmount(totalGains) }}</div>
+          <div class="total-description">Mises + bénéfices</div>
+        </div>
+        
+        <div class="total-card total-benefice" :class="getTotalBeneficeClass()">
+          <div class="total-label">Total des bénéfices</div>
+          <div class="total-amount">{{ formatAmount(totalBenefice) }}</div>
+          <div class="total-description">Gains - mises</div>
+        </div>
       </div>
     </div>
 
@@ -25,26 +34,36 @@
         
         <div class="bookmaker-details">
           <div class="detail-row">
-            <span class="detail-label">Mise totale :</span>
-            <span class="detail-value">{{ result.totalStake }}€</span>
+            <span class="detail-label">Mise cash :</span>
+            <span class="detail-value">{{ result.cashStake }}€</span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Gains :</span>
-            <span class="detail-value">{{ result.totalWinnings }}€</span>
+            <span class="detail-label">Gains totaux :</span>
+            <span class="detail-value" :class="getAmountClass(result.totalGains)">
+              {{ result.totalGains }}€
+            </span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">Résultat :</span>
+            <span class="detail-label">Bénéfice :</span>
+            <span class="detail-value" :class="getAmountClass(result.benefice)">
+              {{ formatAmount(result.benefice) }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Statut :</span>
             <span class="detail-value">{{ result.resultLabel }}</span>
           </div>
         </div>
         
-        <div class="net-result" :class="getResultClass(result.netResult)">
-          {{ formatAmount(result.netResult) }}
+        <div class="net-result" :class="getBeneficeClass(result.benefice)">
+          <div class="result-label">Bénéfice net</div>
+          <div class="result-amount">{{ formatAmount(result.benefice) }}</div>
         </div>
         
         <button 
           class="withdrawal-button"
           @click="openWithdrawalVideo(result.name, result.withdrawalVideoLink)"
+          :disabled="result.benefice <= 0"
         >
           <v-icon icon="mdi-play-circle" size="18" />
           Comment faire un retrait ?
@@ -120,35 +139,46 @@ const showVideoModal = ref(false)
 const currentVideoId = ref('')
 
 // Données simulées des résultats - à remplacer par les vraies données
+// Exemple : 3 paris de 100€ avec 127€ de bénéfice = 427€ de gains et 127€ de bénéfice
 const bookmakerResults = ref([
   {
     name: 'Zebet',
-    totalStake: 100,
-    totalWinnings: 140,
-    netResult: 40,
+    cashStake: 100, // Mise en cash uniquement
+    totalGains: 140, // Ce que le bookmaker a payé
+    benefice: 40, // totalGains - cashStake
     resultLabel: 'Paris gagnant',
-    withdrawalVideoLink: 'dQw4w9WgXcQ' // ID YouTube d'exemple
+    withdrawalVideoLink: 'dQw4w9WgXcQ'
   },
   {
     name: 'Unibet', 
-    totalStake: 120,
-    totalWinnings: 0,
-    netResult: -120,
+    cashStake: 100,
+    totalGains: 0, // Rien gagné
+    benefice: -100, // 0 - 100 = -100€
     resultLabel: 'Paris perdant',
     withdrawalVideoLink: 'dQw4w9WgXcQ'
   },
   {
     name: 'Betclic',
-    totalStake: 150,
-    totalWinnings: 357,
-    netResult: 207,
+    cashStake: 100,
+    totalGains: 287, // Ce que le bookmaker a payé
+    benefice: 187, // 287 - 100 = 187€
     resultLabel: 'Paris gagnant',
     withdrawalVideoLink: 'dQw4w9WgXcQ'
   }
 ])
 
+// Calculs des totaux
+const totalCashStakes = computed(() => {
+  return bookmakerResults.value.reduce((total, result) => total + result.cashStake, 0)
+})
+
+const totalBenefice = computed(() => {
+  return bookmakerResults.value.reduce((total, result) => total + result.benefice, 0)
+})
+
 const totalGains = computed(() => {
-  return bookmakerResults.value.reduce((total, result) => total + result.netResult, 0)
+  // Gains = Mises totales + Bénéfice
+  return totalCashStakes.value + totalBenefice.value
 })
 
 const formatAmount = (amount: number) => {
@@ -156,15 +186,27 @@ const formatAmount = (amount: number) => {
   return `${sign}${amount}€`
 }
 
-const getResultClass = (amount: number) => {
-  if (amount > 0) return 'gain-amount'
-  if (amount < 0) return 'loss-amount'
+const getAmountClass = (amount: number) => {
+  if (amount > 0) return 'positive-amount'
+  if (amount < 0) return 'negative-amount'
   return 'neutral-amount'
 }
 
-const getTotalClass = () => {
-  if (totalGains.value > 0) return 'total-positive'
-  if (totalGains.value < 0) return 'total-negative'
+const getBeneficeClass = (amount: number) => {
+  if (amount > 0) return 'benefice-positive'
+  if (amount < 0) return 'benefice-negative'
+  return 'benefice-neutral'
+}
+
+const getTotalGainsClass = () => {
+  if (totalGains.value > totalCashStakes.value) return 'total-positive'
+  if (totalGains.value < totalCashStakes.value) return 'total-negative'
+  return 'total-neutral'
+}
+
+const getTotalBeneficeClass = () => {
+  if (totalBenefice.value > 0) return 'total-positive'
+  if (totalBenefice.value < 0) return 'total-negative'
   return 'total-neutral'
 }
 
@@ -189,7 +231,7 @@ const goToNextBookmakers = () => {
   margin: 0 auto;
 }
 
-/* En-tête avec titre et total */
+/* En-tête avec titre et totaux */
 .bilan-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -210,33 +252,40 @@ const goToNextBookmakers = () => {
   margin-bottom: 1.5rem;
 }
 
-/* Total des gains */
-.total-gains {
+/* Grille des totaux */
+.totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.total-card {
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
-  margin-bottom: 2rem;
   transition: all 0.3s ease;
+  border: 2px solid;
 }
 
 .total-positive {
   background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border: 1px solid #10b981;
+  border-color: #10b981;
 }
 
 .total-negative {
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-  border: 1px solid #9ca3af;
+  border-color: #9ca3af;
 }
 
 .total-neutral {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
+  border-color: #cbd5e1;
 }
 
 .total-label {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
@@ -253,8 +302,9 @@ const goToNextBookmakers = () => {
 }
 
 .total-amount {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
+  margin-bottom: 0.25rem;
 }
 
 .total-positive .total-amount {
@@ -269,10 +319,28 @@ const goToNextBookmakers = () => {
   color: #64748b;
 }
 
+.total-description {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.total-positive .total-description {
+  color: #047857;
+}
+
+.total-negative .total-description {
+  color: #6b7280;
+}
+
+.total-neutral .total-description {
+  color: #64748b;
+}
+
 /* Grille des bookmakers */
 .bookmakers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -317,39 +385,84 @@ const goToNextBookmakers = () => {
 
 .detail-label {
   color: #6b7280;
+  font-weight: 500;
 }
 
 .detail-value {
-  font-weight: 500;
+  font-weight: 600;
   color: #1f2937;
+}
+
+.positive-amount {
+  color: #059669 !important;
+}
+
+.negative-amount {
+  color: #6b7280 !important;
+}
+
+.neutral-amount {
+  color: #64748b !important;
 }
 
 /* Résultats nets */
 .net-result {
-  font-size: 1.2rem;
-  font-weight: 700;
   text-align: center;
   margin-bottom: 1rem;
-  padding: 0.5rem;
+  padding: 1rem;
   border-radius: 8px;
+  border: 2px solid;
 }
 
-.gain-amount {
-  color: #059669;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+.benefice-positive {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
 }
 
-.loss-amount {
-  color: #6b7280;
-  background: #f9fafb;
-  border: 1px solid #d1d5db;
+.benefice-negative {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-color: #9ca3af;
 }
 
-.neutral-amount {
+.benefice-neutral {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-color: #cbd5e1;
+}
+
+.result-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  opacity: 0.8;
+}
+
+.benefice-positive .result-label {
+  color: #065f46;
+}
+
+.benefice-negative .result-label {
+  color: #4b5563;
+}
+
+.benefice-neutral .result-label {
   color: #64748b;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+}
+
+.result-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.benefice-positive .result-amount {
+  color: #059669;
+}
+
+.benefice-negative .result-amount {
+  color: #6b7280;
+}
+
+.benefice-neutral .result-amount {
+  color: #64748b;
 }
 
 .withdrawal-button {
@@ -369,9 +482,16 @@ const goToNextBookmakers = () => {
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
-.withdrawal-button:hover {
+.withdrawal-button:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.withdrawal-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
 }
 
 /* Instructions de retrait */
@@ -484,6 +604,10 @@ const goToNextBookmakers = () => {
 @media (max-width: 767px) {
   .bilan-instruction-container {
     padding: 0;
+  }
+  
+  .totals-grid {
+    grid-template-columns: 1fr;
   }
   
   .bookmakers-grid {
