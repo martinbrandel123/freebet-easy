@@ -7,6 +7,7 @@ import SignupInInstructionHeader from './SignupInstructionHeader.vue'
 import BetInstruction from './BetInstruction.vue'
 import BetInstructionHeader from './BetInstructionHeader.vue'
 import FreebetInstruction from './FreebetInstruction.vue'
+import BilanInstruction from './BilanInstruction.vue'
 
 const programStore = useProgramStore()
 const showSkipConfirmation = ref(false)
@@ -39,6 +40,12 @@ const handleSkip = () => {
     
     // Toast notification
     console.log('Étape ignorée')
+  }
+}
+
+const handleNextStep = () => {
+  if (currentStep.value) {
+    programStore.markStepAsCompleted(currentStep.value.id)
   }
 }
 
@@ -143,6 +150,10 @@ const getStepTypeLabel = (type: string) => {
 
       <div v-if="currentStep.type === 'freebet'">
         <FreebetInstruction :currentStep="currentStep"/>
+      </div>
+
+      <div v-if="currentStep.type === 'result'">
+        <BilanInstruction :currentStep="currentStep" @nextStep="handleNextStep"/>
       </div>
     </div>
 
