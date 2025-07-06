@@ -2,6 +2,10 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { AuthService } from '../../services/authService'
+import ErrorBanner from '../../components/ui/ErrorBanner.vue'
+import SuccessBanner from '../../components/ui/SuccessBanner.vue'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue'
+import type { PasswordResetData } from '../../interfaces/auth'
 
 const router = useRouter()
 const route = useRoute() 
@@ -12,7 +16,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const token = ref('')
 
-const passwordData = reactive({
+const passwordData = reactive<PasswordResetData>({
   token: '',
   newPassword: '',
 })
@@ -31,8 +35,6 @@ const handlePasswordUpdate = async (e: Event) => {
   isLoading.value = true
   error.value = ''
   success.value = ''
-
-
 
   if (password.value !== confirmPassword.value) {
     error.value = 'Les mots de passe ne correspondent pas'
@@ -77,13 +79,8 @@ function goToLogin() {
 
         <div class="auth-form">
           <form @submit="handlePasswordUpdate" class="password-form">
-            <div v-if="error" class="error-message">
-              {{ error }}
-            </div>
-
-            <div v-if="success" class="success-message">
-              {{ success }}  
-            </div>
+            <ErrorBanner v-if="error" :message="error" />
+            <SuccessBanner v-if="success" :message="success" />
             
             <div class="form-group">
               <label for="password">Nouveau mot de passe</label>
@@ -110,9 +107,7 @@ function goToLogin() {
             </div>
             
             <button type="submit" class="auth-button" :disabled="isLoading">
-              <span v-if="isLoading">
-                <div class="spinner"></div>
-              </span>
+              <LoadingSpinner v-if="isLoading" size="small" />
               <span v-else>Modifier le mot de passe</span>
             </button>
           </form>
@@ -120,7 +115,6 @@ function goToLogin() {
           <div class="auth-link">
             <a href="/login">Connectez-vous</a>
           </div>
-
         </div>
       </div>
     </div>
@@ -128,24 +122,6 @@ function goToLogin() {
 </template>
 
 <style scoped>
-.error-message {
-  color: var(--color-error);
-  background-color: #FEE2E2;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.success-message {
-  color: var(--color-success);
-  background-color: #D1FAE5;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 .password-form {
   display: flex;
   flex-direction: column;
@@ -162,5 +138,4 @@ function goToLogin() {
   width: auto;
   padding: 0.75rem 2rem;
 }
-
 </style>

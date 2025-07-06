@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import AuthGoogleButton from './AuthGoogleButton.vue'
+import AuthGoogleButton from '../auth/AuthGoogleButton.vue'
+import type { User } from '../../interfaces/auth'
 
 const formData = ref({
   firstName: '',
@@ -84,7 +85,7 @@ const submitForm = async () => {
   }
 }
 
-const handleGoogleSuccess = (token: string, userInfo?: any) => {
+const handleGoogleSuccess = (token: string, userInfo?: User) => {
   console.log('Inscription Google réussie:', { token, userInfo })
   isSuccess.value = true
 }
@@ -256,136 +257,6 @@ const handleGoogleError = (errorMessage: string) => {
   opacity: 0.9;
 }
 
-.signup-form-container {
-  background: white;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  color: #1F2937;
-}
-
-.signup-options {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.google-signup-section {
-  text-align: center;
-}
-
-.google-signup-section h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #1F2937;
-  margin-bottom: 1.5rem;
-}
-
-.signup-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group label {
-  font-weight: 600;
-  color: #374151;
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.875rem;
-  border: 2px solid #E5E7EB;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-group input.error {
-  border-color: #EF4444;
-}
-
-.error-message {
-  color: #EF4444;
-  font-size: 0.875rem;
-}
-
-.checkbox-group {
-  gap: 0.75rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.checkbox-label input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.checkmark {
-  width: 20px;
-  height: 20px;
-  background: #E5E7EB;
-  border-radius: 4px;
-  position: relative;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.checkbox-label input:checked + .checkmark {
-  background: #3B82F6;
-}
-
-.checkbox-label input:checked + .checkmark::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-weight: bold;
-  font-size: 0.8rem;
-}
-
-.checkbox-text {
-  flex: 1;
-}
-
-.link {
-  color: #3B82F6;
-  text-decoration: none;
-}
-
-.link:hover {
-  text-decoration: underline;
-}
-
 .submit-btn {
   background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
   color: white;
@@ -401,6 +272,7 @@ const handleGoogleError = (errorMessage: string) => {
   justify-content: center;
   gap: 0.5rem;
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  width: 100%;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -411,103 +283,6 @@ const handleGoogleError = (errorMessage: string) => {
 .submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.form-footer {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.security-badges {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.badge {
-  font-size: 1.5rem;
-}
-
-.form-footer p {
-  font-size: 0.875rem;
-  color: #6B7280;
-  margin: 0;
-}
-
-.success-message {
-  text-align: center;
-  padding: 2rem;
-}
-
-.success-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.success-message h3 {
-  font-size: 2rem;
-  color: #10B981;
-  margin-bottom: 1rem;
-}
-
-.success-message p {
-  font-size: 1.1rem;
-  color: #6B7280;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-.success-next-steps {
-  background: #F0FDF4;
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: left;
-  margin-bottom: 2rem;
-}
-
-.success-next-steps h4 {
-  color: #059669;
-  margin-bottom: 1rem;
-}
-
-.success-next-steps ol {
-  color: #374151;
-  padding-left: 1.5rem;
-}
-
-.success-next-steps li {
-  margin-bottom: 0.5rem;
-}
-
-.dashboard-link {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-.dashboard-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 @media (max-width: 1024px) {
@@ -524,14 +299,6 @@ const handleGoogleError = (errorMessage: string) => {
 @media (max-width: 767px) {
   .section-title {
     font-size: 2rem;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .signup-form-container {
-    padding: 2rem 1.5rem;
   }
   
   .info-card {

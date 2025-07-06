@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { AuthService } from '../../services/authService'
+import ErrorBanner from '../../components/ui/ErrorBanner.vue'
+import SuccessBanner from '../../components/ui/SuccessBanner.vue'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -52,22 +55,11 @@ const goToLogin = () => {
         </div>
 
         <div class="auth-form">
-          <div v-if="error" class="error-banner">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>{{ error }}</span>
-          </div>
-
-          <div v-if="success" class="success-banner">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>{{ success }}</span>
-          </div>
+          <ErrorBanner v-if="error" :message="error" />
+          <SuccessBanner v-if="success" :message="success" />
 
           <div v-if="isLoading" class="loading-container">
-            <div class="spinner"></div>
+            <LoadingSpinner size="large" />
           </div>
 
           <button 
@@ -88,20 +80,6 @@ const goToLogin = () => {
   display: flex;
   justify-content: center;
   padding: 2rem 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(59, 130, 246, 0.1);
-  border-top: 4px solid var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .auth-button {

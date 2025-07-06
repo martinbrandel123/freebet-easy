@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import AuthGoogleButton from '../components/AuthGoogleButton.vue'
+import AuthGoogleButton from '../components/auth/AuthGoogleButton.vue'
+import ErrorBanner from '../components/ui/ErrorBanner.vue'
+import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
 import { useAuthStore } from '../stores/auth'
 import { AuthService } from '../services/authService'
+import type { RegisterData, User } from '../interfaces/auth'
+import type { Bookmaker } from '../interfaces/common'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -19,14 +23,14 @@ const error = ref('')
 const success = ref(false)
 
 // Données du formulaire
-const formData = reactive({
+const formData = reactive<RegisterData>({
   email: '',
   password: '',
   firstName: '',
   lastName: '',
   age: '',
   isFromFrance: true,
-  bookmakers: [] as string[],
+  bookmakers: [],
   acceptTerms: false,
   acceptNewsletter: true
 })
@@ -43,21 +47,21 @@ const errors = reactive({
 })
 
 // Liste des bookmakers
-const bookmakers = [
-{ id: 'zebet', name: 'Zebet', logo: '🎯' },      // focalisé sur la cible, précision
-{ id: 'vibrez', name: 'Vibrez', logo: '🧩' },    // vibration, énergie
-{ id: 'bwin', name: 'Bwin', logo: '💥' },        // impact, explosion d’énergie
-{ id: 'betclic', name: 'Betclic', logo: '🔥' },  // intensité et passion (déjà utilisé)
-{ id: 'betsson', name: 'Betsson', logo: '🎰' },  // machine à sous, casino :contentReference[oaicite:1]{index=1}
-{ id: 'unibet', name: 'Unibet', logo: '🧩' },    // vibration, énergie
-{ id: 'parionssport', name: 'Parions sport', logo: '🏆' }, // victoire, compétition
-{ id: 'feelingbet', name: 'Feelingbet', logo: '😊' },     // ressenti et émotion
-{ id: 'olybet', name: 'Olybet', logo: '🥇' },              // médaille d’or, olympisme
-{ id: 'genybet', name: 'Genybet', logo: '⚡' },            // rapidité, énergie (déjà utilisé)
-{ id: 'netbet', name: 'Netbet', logo: '🎲' },              // dé, chance, jeux :contentReference[oaicite:2]{index=2}
-{ id: 'pmu', name: 'Pmu', logo: '🐎' },                   // pari hippique
-{ id: 'vbet', name: 'Vbet', logo: '🚀' },                 // envol, montée en flèche
-{ id: 'winamax', name: 'Winamax', logo: '🏅' }   
+const bookmakers: Bookmaker[] = [
+  { id: 'zebet', name: 'Zebet', logo: '🎯' },
+  { id: 'vibrez', name: 'Vibrez', logo: '🧩' },
+  { id: 'bwin', name: 'Bwin', logo: '💥' },
+  { id: 'betclic', name: 'Betclic', logo: '🔥' },
+  { id: 'betsson', name: 'Betsson', logo: '🎰' },
+  { id: 'unibet', name: 'Unibet', logo: '🧩' },
+  { id: 'parionssport', name: 'Parions sport', logo: '🏆' },
+  { id: 'feelingbet', name: 'Feelingbet', logo: '😊' },
+  { id: 'olybet', name: 'Olybet', logo: '🥇' },
+  { id: 'genybet', name: 'Genybet', logo: '⚡' },
+  { id: 'netbet', name: 'Netbet', logo: '🎲' },
+  { id: 'pmu', name: 'Pmu', logo: '🐎' },
+  { id: 'vbet', name: 'Vbet', logo: '🚀' },
+  { id: 'winamax', name: 'Winamax', logo: '🏅' }
 ]
 
 // Validation en temps réel
@@ -149,7 +153,6 @@ const submitForm = async () => {
     const response = await AuthService.register(formData)
 
     if (response.status != 200) {
-      // const errorData = await response.json();
       throw new Error('Erreur lors de l\'inscription')
     }
 
@@ -164,7 +167,7 @@ const submitForm = async () => {
 }
 
 // Gestion du succès Google
-const handleGoogleSuccess = (token: string, userInfo?: any) => {
+const handleGoogleSuccess = (token: string, userInfo?: User) => {
   success.value = true
   currentStep.value = 3
 }
@@ -202,7 +205,6 @@ const goToDashboard = () => {
   <div class="signup-view">
     <div class="signup-container">
       <!-- Header -->
-
       <header class="signup-header">
         <button @click="goHome" class="back-button">
           <v-icon icon="mdi-arrow-left" size="small"></v-icon>
@@ -344,7 +346,6 @@ const goToDashboard = () => {
               <button type="submit" class="continue-button" :disabled="!isStep1Valid">
                 Continuer
                 <v-icon icon="mdi-arrow-right" size="small"></v-icon>
-
               </button>
             </form>
           </div>
@@ -358,38 +359,38 @@ const goToDashboard = () => {
 
           <form @submit.prevent="submitForm" class="preferences-form">
             <!-- Pays de résidence -->
-          <div class="form-section">
-            <h3>Pays de résidence actuelle</h3>
-            <p class="field-description">Veuillez indiquer où vous vivez actuellement (ceci n'est pas lié à votre nationalité)</p>
-            
-            <div class="toggle-group">
-              <label class="toggle-option" :class="{ active: formData.isFromFrance }">
-                <input 
-                  type="radio" 
-                  :value="true" 
-                  v-model="formData.isFromFrance"
-                  name="residence-country"
-                >
-                <span class="toggle-content">
-                  <span class="flag">🥖</span>
-                  <span>France</span>
-                </span>
-              </label>
+            <div class="form-section">
+              <h3>Pays de résidence actuelle</h3>
+              <p class="field-description">Veuillez indiquer où vous vivez actuellement (ceci n'est pas lié à votre nationalité)</p>
               
-              <label class="toggle-option" :class="{ active: !formData.isFromFrance }">
-                <input 
-                  type="radio" 
-                  :value="false" 
-                  v-model="formData.isFromFrance"
-                  name="residence-country"
-                >
-                <span class="toggle-content">
-                  <span class="flag">🌍</span>
-                  <span>Hors de France</span>
-                </span>
-              </label>
+              <div class="toggle-group">
+                <label class="toggle-option" :class="{ active: formData.isFromFrance }">
+                  <input 
+                    type="radio" 
+                    :value="true" 
+                    v-model="formData.isFromFrance"
+                    name="residence-country"
+                  >
+                  <span class="toggle-content">
+                    <span class="flag">🥖</span>
+                    <span>France</span>
+                  </span>
+                </label>
+                
+                <label class="toggle-option" :class="{ active: !formData.isFromFrance }">
+                  <input 
+                    type="radio" 
+                    :value="false" 
+                    v-model="formData.isFromFrance"
+                    name="residence-country"
+                  >
+                  <span class="toggle-content">
+                    <span class="flag">🌍</span>
+                    <span>Hors de France</span>
+                  </span>
+                </label>
+              </div>
             </div>
-          </div>
 
             <!-- Bookmakers -->
             <div class="form-section">
@@ -449,10 +450,7 @@ const goToDashboard = () => {
             </div>
 
             <!-- Erreur globale -->
-            <div v-if="error" class="error-banner">
-              <span class="error-icon">⚠️</span>
-              <span>{{ error }}</span>
-            </div>
+            <ErrorBanner v-if="error" :message="error" />
 
             <!-- Boutons -->
             <div class="form-actions">
@@ -468,9 +466,7 @@ const goToDashboard = () => {
                 class="submit-button"
                 :disabled="!isFormValid || isLoading"
               >
-                <span v-if="isLoading">
-                  <div class="spinner"></div>
-                </span>
+                <LoadingSpinner v-if="isLoading" size="small" />
                 <span v-else>
                   Créer mon compte
                   <v-icon icon="mdi-arrow-right" size="small"></v-icon>
@@ -938,23 +934,6 @@ const goToDashboard = () => {
   text-decoration: underline;
 }
 
-/* Error banner */
-.error-banner {
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
-  color: #DC2626;
-  padding: 1rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.error-icon {
-  flex-shrink: 0;
-}
-
 /* Buttons */
 .continue-button,
 .submit-button {
@@ -1014,21 +993,6 @@ const goToDashboard = () => {
 
 .submit-button {
   flex: 1;
-}
-
-/* Spinner */
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 /* Success step */

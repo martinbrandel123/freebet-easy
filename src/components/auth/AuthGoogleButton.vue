@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
+import LoadingSpinner from '../ui/LoadingSpinner.vue'
+import type { User } from '../../interfaces/auth'
 
 const props = defineProps<{
   clientId: string
@@ -15,7 +17,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  success: [token: string, userInfo?: any]
+  success: [token: string, userInfo?: User]
   error: [error: string]
   loading: [isLoading: boolean]
 }>()
@@ -133,7 +135,7 @@ onMounted(() => {
       
       <!-- Bouton de fallback personnalisé -->
       <div v-if="isLoading" class="loading-overlay">
-        <div class="spinner"></div>
+        <LoadingSpinner size="small" />
         <span>Connexion en cours...</span>
       </div>
     </div>
@@ -146,7 +148,7 @@ onMounted(() => {
         :disabled="isLoading"
       >
         <div v-if="isLoading" class="button-loading">
-          <div class="spinner"></div>
+          <LoadingSpinner size="small" />
           <span>Connexion...</span>
         </div>
         <div v-else class="button-content">
@@ -259,20 +261,6 @@ onMounted(() => {
 
 .button-loading {
   color: #6B7280;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #E5E7EB;
-  border-top: 2px solid #3B82F6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .error-message {

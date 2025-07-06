@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { MoneyExample } from '../../interfaces/common'
 
 const currentSlide = ref(0)
 const autoSlideInterval = ref<NodeJS.Timeout | null>(null)
 
-const examples = [
+const examples: MoneyExample[] = [
   {
     title: "30 pizzas + boisson",
     description: "Chez votre pizzeria préférée",
@@ -89,7 +90,6 @@ onMounted(() => {
             <div v-for="(example, index) in examples" :key="index" class="carousel-slide">
               <div class="example-card">
                 <div class="example-icon">{{ example.icon }}</div>
-                <!-- <div class="example-cost">{{ example.cost }}</div> -->
                 <h3 class="example-title">{{ example.title }}</h3>
                 <p class="example-description">{{ example.description }}</p>
                 <div class="example-visual">{{ example.visual }}</div>
@@ -128,7 +128,6 @@ onMounted(() => {
           <div class="money-content">
             <h4>{{ example.title }}</h4>
             <p>{{ example.description }}</p>
-            <!-- <span class="money-cost">{{ example.cost }}</span> -->
           </div>
         </div>
       </div>
@@ -206,15 +205,6 @@ onMounted(() => {
 
 .example-icon {
   font-size: 4rem;
-  margin-bottom: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.example-cost {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #FCD34D;
   margin-bottom: 1rem;
   position: relative;
   z-index: 1;
@@ -336,12 +326,6 @@ onMounted(() => {
   color: #6B7280;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
-}
-
-.money-cost {
-  color: #3B82F6;
-  font-weight: 600;
-  font-size: 1.1rem;
 }
 
 @media (max-width: 767px) {

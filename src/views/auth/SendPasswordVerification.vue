@@ -2,13 +2,17 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { AuthService } from '../../services/authService'
+import ErrorBanner from '../../components/ui/ErrorBanner.vue'
+import SuccessBanner from '../../components/ui/SuccessBanner.vue'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue'
+import type { EmailVerificationData } from '../../interfaces/auth'
 
 const router = useRouter()
 const isLoading = ref(false)
 const error = ref('')
 const success = ref('')
 
-const formData = reactive({
+const formData = reactive<EmailVerificationData>({
   email: ''
 })
 
@@ -59,13 +63,8 @@ const goBack = () => {
 
         <div class="auth-form">
           <form @submit="handleResetRequest" class="email-form">
-            <div v-if="error" class="error-banner">
-              {{ error }}
-            </div>
-
-            <div v-if="success" class="success-banner">
-              {{ success }}
-            </div>
+            <ErrorBanner v-if="error" :message="error" />
+            <SuccessBanner v-if="success" :message="success" />
             
             <div class="form-group">
               <label for="email">Email</label>
@@ -79,9 +78,7 @@ const goBack = () => {
             </div>
 
             <button type="submit" class="auth-button" :disabled="isLoading">
-              <span v-if="isLoading">
-                <div class="spinner"></div>
-              </span>
+              <LoadingSpinner v-if="isLoading" size="small" />
               <span v-else>Envoyer le lien</span>
             </button>
           </form>
@@ -90,7 +87,6 @@ const goBack = () => {
             <p>Vous vous souvenez de votre mot de passe ? <a href="/login">Connectez-vous</a></p>
           </div>
         </div>
-
       </div>
     </div>
   </div>

@@ -2,6 +2,10 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { AuthService } from '../../services/authService'
+import ErrorBanner from '../../components/ui/ErrorBanner.vue'
+import SuccessBanner from '../../components/ui/SuccessBanner.vue'
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue'
+import type { EmailVerificationData } from '../../interfaces/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -10,8 +14,7 @@ const error = ref('')
 const success = ref('')
 
 // Récupère l'email depuis l'URL ou permet à l'utilisateur de le saisir
-
-const formData = reactive({
+const formData = reactive<EmailVerificationData>({
   email: route.query.email?.toString() || '',
 })
 
@@ -63,12 +66,8 @@ function goToLogin() {
 
         <div class="auth-form">
           <!-- Messages d'état -->
-          <div v-if="error" class="error-banner">
-            {{ error }}
-          </div>
-          <div v-if="success" class="success-banner">
-            {{ success }}
-          </div>
+          <ErrorBanner v-if="error" :message="error" />
+          <SuccessBanner v-if="success" :message="success" />
 
           <form @submit.prevent="resendVerificationEmail" class="email-form">
             <div class="form-group">
@@ -87,10 +86,7 @@ function goToLogin() {
               class="auth-button" 
               :disabled="!isFormValid || isLoading"
             >
-              <span v-if="isLoading">
-                <div class="spinner"></div>
-                Envoi en cours...
-              </span>
+              <LoadingSpinner v-if="isLoading" size="small" />
               <span v-else>Renvoyer le lien de vérification</span>
             </button>
           </form>
@@ -196,6 +192,10 @@ function goToLogin() {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .auth-button:disabled {
@@ -207,22 +207,6 @@ function goToLogin() {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
-
-.error-banner {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--color-error);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
-  margin-bottom: var(--space-md);
-  border-left: 4px solid var(--color-error);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  font-size: 0.95rem;
-  animation: fadeIn 0.3s ease-out;
-  box-shadow: var(--shadow-sm);
-}
-
 
 .auth-link {
   text-align: center;
@@ -238,20 +222,5 @@ function goToLogin() {
 
 .auth-link a:hover {
   text-decoration: underline;
-}
-
-.spinner {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 0.5rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 </style>

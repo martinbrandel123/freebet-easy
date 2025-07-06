@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { Testimonial } from '../../interfaces/common'
 
 const currentTestimonial = ref(0)
 const autoSlideInterval = ref<NodeJS.Timeout | null>(null)
 
-const testimonials = [
+const testimonials: Testimonial[] = [
   {
     name: "Sophie",
     age: 28,

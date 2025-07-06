@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { Reason } from '../../interfaces/common'
 
-const reasons = ref([
+const reasons = ref<Reason[]>([
   {
     icon: "🎯",
     title: "Simplicité",

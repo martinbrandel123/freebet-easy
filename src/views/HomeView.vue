@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import Header from '../components/Header.vue'
-import HeroSection from '../components/HeroSection.vue'
-import ConceptExplanation from '../components/ConceptExplanation.vue'
-import MoneyExamples from '../components/MoneyExamples.vue'
-import Testimonials from '../components/Testimonials.vue'
-import WhySignUp from '../components/WhySignUp.vue'
-import SignUpForm from '../components/SignUpForm.vue'
-import FAQ from '../components/FAQ.vue'
-import Footer from '../components/Footer.vue'
+import Header from '../components/layout/Header.vue'
+import HeroSection from '../components/landing/HeroSection.vue'
+import ConceptExplanation from '../components/landing/ConceptExplanation.vue'
+import MoneyExamples from '../components/landing/MoneyExamples.vue'
+import Testimonials from '../components/landing/Testimonials.vue'
+import WhySignUp from '../components/landing/WhySignUp.vue'
+import SignUpForm from '../components/landing/SignUpForm.vue'
+import FAQ from '../components/landing/FAQ.vue'
+import Footer from '../components/layout/Footer.vue'
 </script>
 
 <template>

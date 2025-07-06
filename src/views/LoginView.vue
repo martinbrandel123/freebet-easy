@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import AuthGoogleButton from '../components/AuthGoogleButton.vue'
+import AuthGoogleButton from '../components/auth/AuthGoogleButton.vue'
+import ErrorBanner from '../components/ui/ErrorBanner.vue'
+import LoadingSpinner from '../components/ui/LoadingSpinner.vue'
 import { useRouter } from 'vue-router'
 import { AuthService } from '../services/authService'
-import { useAuthStore } from '../stores/auth';
-
+import { useAuthStore } from '../stores/auth'
+import type { AuthCredentials, User } from '../interfaces/auth'
 
 const router = useRouter()
 const isLoading = ref(false)
 const error = ref('')
-const auth   = useAuthStore();
+const auth = useAuthStore()
 
-const formData = reactive({
+const formData = reactive<AuthCredentials>({
   email: '',
   password: '',
 })
@@ -25,33 +27,30 @@ const GOOGLE_CLIENT_ID = 'VOTRE_CLIENT_ID_GOOGLE.apps.googleusercontent.com'
 const API_URL = 'https://votre-api.com/auth/google'
 
 async function submitForm() {
+  if (!isFormValid.value) return
 
-    if (!isFormValid.value) return
+  isLoading.value = true
+  error.value = ''
 
-    isLoading.value = true
-    error.value = ''
-
-    try {
-      await auth.login(formData);
-    } catch (err: any) {
-      if(err.code == "BAD_CREDENTIALS") {
-        error.value = err.message
-      } else if(err.code == "EMAIL_NOT_VERIFIED") {
-        router.push({
-          path: '/send-email-verification',
-          query: { email: formData.email }
-        })
-      } else {
-        error.value = "Une erreur est survenue lors de la connexion"
-      }
-    } finally {
-      isLoading.value = false
+  try {
+    await auth.login(formData);
+  } catch (err: any) {
+    if(err.code == "BAD_CREDENTIALS") {
+      error.value = err.message
+    } else if(err.code == "EMAIL_NOT_VERIFIED") {
+      router.push({
+        path: '/send-email-verification',
+        query: { email: formData.email }
+      })
+    } else {
+      error.value = "Une erreur est survenue lors de la connexion"
     }
+  } finally {
+    isLoading.value = false
   }
+}
 
-
-
-const handleGoogleSuccess = (token: string, userInfo?: any) => {
+const handleGoogleSuccess = (token: string, userInfo?: User) => {
   console.log('Connexion réussie:', { token, userInfo })
   // La redirection est gérée automatiquement par le composant
 }
@@ -71,7 +70,6 @@ const goHome = () => {
 const goToForgotPassword = () => {
   router.push('/forgot-password')
 }
-
 </script>
 
 <template>
@@ -105,10 +103,8 @@ const goToForgotPassword = () => {
 
           <!-- Formulaire email/mot de passe traditionnel -->
           <form @submit.prevent="submitForm" class="email-form">
-
-          <div v-if="error" class="error-banner">
-            {{ error }}
-          </div>
+            <ErrorBanner v-if="error" :message="error" />
+            
             <div class="form-group">
               <label for="email">Email</label>
               <input 
@@ -122,13 +118,13 @@ const goToForgotPassword = () => {
             
             <div class="form-group">
               <label for="password">Mot de passe</label>
-                <input 
-                  type="password" 
-                  id="password"
-                  v-model="formData.password"
-                  placeholder="••••••••"
-                  required
-                >
+              <input 
+                type="password" 
+                id="password"
+                v-model="formData.password"
+                placeholder="••••••••"
+                required
+              >
             </div>
 
             <div class="form-options">
@@ -139,12 +135,9 @@ const goToForgotPassword = () => {
               </label>
               <a @click="goToForgotPassword" class="forgot-password" style="cursor: pointer;">Mot de passe oublié ?</a>
             </div>
-    
 
             <button type="submit" class="auth-button" :disabled="!isFormValid || isLoading">
-              <span v-if="isLoading">
-                <div class="spinner"></div>
-              </span>
+              <LoadingSpinner v-if="isLoading" size="small" />
               <span v-else>Se connecter</span>
             </button>
           </form>
@@ -153,7 +146,6 @@ const goToForgotPassword = () => {
             <p>Pas encore de compte ? <a href="/signup">Inscrivez-vous gratuitement</a></p>
           </div>
         </div>
-
       </div>
     </div>
   </div>

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { FAQ } from '../../interfaces/common'
 
 const activeIndex = ref<number | null>(null)
 
-const faqs = [
+const faqs: FAQ[] = [
   {
     question: "Est-ce vraiment sans risque ?",
-    answer: "Oui, absolument ! Notre méthode utilise exclusivement les bonus de bienvenue offerts par les sites de paris sportifs. Ces bonus couvrent toujours vos mises initiales, ce qui signifie que vous ne pouvez pas perdre votre propre argent. C'est mathématiquement impossible avec notre approche. Le seul risque potentiel survient en cas d’erreur lors de l’inscription sur les sites de paris (par exemple, si les conditions du bonus ne sont pas respectées). Mais rassurez-vous : notre accompagnement étape par étape est justement conçu pour éviter ce type d'erreurs."
+    answer: "Oui, absolument ! Notre méthode utilise exclusivement les bonus de bienvenue offerts par les sites de paris sportifs. Ces bonus couvrent toujours vos mises initiales, ce qui signifie que vous ne pouvez pas perdre votre propre argent. C'est mathématiquement impossible avec notre approche. Le seul risque potentiel survient en cas d'erreur lors de l'inscription sur les sites de paris (par exemple, si les conditions du bonus ne sont pas respectées). Mais rassurez-vous : notre accompagnement étape par étape est justement conçu pour éviter ce type d'erreurs."
   },
   {
     question: "Combien de temps faut-il pour gagner 500€ ?",

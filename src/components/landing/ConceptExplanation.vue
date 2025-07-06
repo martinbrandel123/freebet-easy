@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import type { Step } from '../../interfaces/common'
 
-const steps = ref([
+const steps = ref<Step[]>([
   {
     number: 1,
     title: "Inscription sur les sites de paris sportifs",
