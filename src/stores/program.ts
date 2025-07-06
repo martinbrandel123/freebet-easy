@@ -8,7 +8,7 @@ export interface Step {
   bookmaker: string,
   bet?: string,
   matrice?: string[],
-  matchInfo?: MatchInfo,
+  matchInfo?: MatchInfo[],
   bookmakerStep: BookmakerStep[]
   title: string
   status: 'todo' | 'in_progress' | 'done'
@@ -19,7 +19,8 @@ export interface MatchInfo {
   homeTeam: string,
   awayTeam: string,
   competition: string,
-  startingDate: string
+  startingDate: string,
+  betType?: 'Moneyline',
 }
 
 export interface BookmakerStep {
@@ -95,12 +96,12 @@ export const useProgramStore = defineStore('program', () => {
           type: 'bet',
           bookmaker: 'Zebet, Unibet, Betclic',
           bet: 'Paris SG vs Lyon',
-          matchInfo: {
+          matchInfo: [{
             homeTeam: 'Paris Saint Germain',
             awayTeam: 'Lyon',
             competition: 'Ligue 1',
             startingDate: '2025-07-06T21:00:00'
-          },
+          }],
           bookmakerStep: [
             {
               name: 'ZebetTTTTT',
@@ -134,6 +135,20 @@ export const useProgramStore = defineStore('program', () => {
           order: 3,
           type: 'freebet',
           bookmaker: 'Zebet, Unibet, Betclic',
+          matchInfo: [
+            {
+              homeTeam: 'Paris Saint Germain',
+              awayTeam: 'Lyon',
+              competition: 'Ligue 1',
+              startingDate: '2025-07-06T21:00:00'
+            },
+            {
+              homeTeam: 'Bayern',
+              awayTeam: 'Dortmund',
+              competition: 'Bundesliga',
+              startingDate: '2025-08-06T14:30:00'
+            }
+          ],
           bookmakerStep: [
             {
               name: 'Zebet',

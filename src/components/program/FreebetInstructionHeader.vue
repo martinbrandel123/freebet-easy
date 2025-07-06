@@ -1,7 +1,7 @@
 <template>
   <div class="freebet-header">
     <div class="header-content">
-      <h1 class="main-title">27 Combinaisons Disponibles</h1>
+      <h1 class="main-title">27 Combinés à faire</h1>
       
       <div class="freebet-summary">
         <div class="freebet-item">
