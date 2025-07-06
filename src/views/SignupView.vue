@@ -362,6 +362,7 @@ const goToDashboard = () => {
             <div class="form-section">
               <h3>Pays de résidence actuelle</h3>
               <p class="field-description">Veuillez indiquer où vous vivez actuellement (ceci n'est pas lié à votre nationalité)</p>
+              )
               
               <div class="toggle-group">
                 <label class="toggle-option" :class="{ active: formData.isFromFrance }">
