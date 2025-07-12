@@ -12,7 +12,7 @@ const handleLogout = () => {
 }
 
 const goToProgram = () => {
-  router.push('/programme')
+  router.push('/program')
 }
 
 onMounted(() => {
