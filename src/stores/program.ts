@@ -285,8 +285,7 @@ export const useProgramStore = defineStore('program', () => {
   })
 
   // Actions
-  const initializeProgram = () => {
-    // Charger depuis localStorage
+  const getProgramRun = () => {
     const saved = localStorage.getItem('program-progress')
     if (saved) {
       try {
@@ -403,7 +402,7 @@ export const useProgramStore = defineStore('program', () => {
     isProgramCompleted,
     
     // Actions
-    initializeProgram,
+    getProgramRun,
     saveProgress,
     markStepAsCompleted,
     markStepAsInProgress,

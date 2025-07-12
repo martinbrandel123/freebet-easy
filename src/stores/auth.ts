@@ -26,8 +26,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(formData: any) {
-      const response = await AuthService.login(formData);
-      this.setToken(response.data);
+      try {
+        const response = await AuthService.login(formData);
+        console.log("RESPONSE LOGIN ", response.data.data)
+        this.setToken(response.data.data);
+      } catch (error) {
+        console.log("ERROR LOGIN", error);
+      }
+
     },
 
     logout() {
@@ -39,6 +45,7 @@ export const useAuthStore = defineStore('auth', {
 
     /** Vérifie au démarrage que le token n’est pas expiré */
     hydrate() {
+      console.log(this.token);
       if (!this.token) return;
       const { exp } = jwtDecode<Payload>(this.token);
       if (Date.now() >= exp * 1000) {

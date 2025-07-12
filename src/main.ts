@@ -32,6 +32,6 @@ app.use(router)
 app.use(vuetify) // <-- Ajoutez cette ligne
 
 const auth = useAuthStore();
-auth.hydrate();
+// auth.hydrate();
 
 app.mount('#app')

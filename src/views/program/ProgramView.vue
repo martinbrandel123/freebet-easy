@@ -14,9 +14,11 @@ const showDebugPanel = ref(false)
 // const isDevMode = import.meta.env.DEV
  const isDevMode = true
 
+
+
 onMounted(() => {
   // Initialiser le programme au chargement
-  programStore.initializeProgram()
+  programStore.getProgramRun()
 })
 
 const toggleHistoryDrawer = () => {

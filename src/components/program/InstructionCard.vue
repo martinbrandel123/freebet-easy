@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProgramStore } from '../../stores/program'
 import BookmakerLogo from './BookmakerLogo.vue'
 import SignupInstruction from './SignupInstruction.vue'
@@ -9,6 +9,20 @@ import BetInstructionHeader from './BetInstructionHeader.vue'
 import FreebetInstruction from './FreebetInstruction.vue'
 import BilanInstruction from './BilanInstruction.vue'
 
+
+function parseSubStepData(data: string | null): any | null {
+  if (!data) return null;
+
+  try {
+    const parsed: any = JSON.parse(data);
+    return parsed;
+  } catch (e) {
+    console.error("Erreur de parsing JSON :", e);
+    return null;
+  }
+}
+
+
 const programStore = useProgramStore()
 const showSkipConfirmation = ref(false)
 
@@ -16,7 +30,7 @@ const currentStep = computed(() => programStore.currentStep)
 
 const canMarkAsDone = computed(() => {
   // Pour l'instant, toujours autorisé. Plus tard, on ajoutera des validations
-  return true
+  return 7
 })
 
 const canSkip = computed(() => {
@@ -83,6 +97,7 @@ const getStepTypeLabel = (type: string) => {
 </script>
 
 <template>
+  
   <div v-if="currentStep" class="instruction-card">
     <!-- En-tête de la carte -->
     <div class="card-header">

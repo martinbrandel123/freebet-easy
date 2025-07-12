@@ -32,7 +32,12 @@ async function submitForm() {
     error.value = ''
 
     try {
+      console.log("wazzza", formData)
       await auth.login(formData);
+
+      router.push({
+        path: '/program'
+      })
     } catch (err: any) {
       if(err.code == "BAD_CREDENTIALS") {
         error.value = err.message

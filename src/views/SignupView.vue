@@ -28,7 +28,8 @@ const formData = reactive({
   isFromFrance: true,
   bookmakers: [] as string[],
   acceptTerms: false,
-  acceptNewsletter: true
+  acceptNewsletter: true,
+  balance: 300
 })
 
 // Validation en temps réel
